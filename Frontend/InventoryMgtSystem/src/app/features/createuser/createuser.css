@@ -1,0 +1,212 @@
+/* src/app/components/employee-form/employee-form.component.css */
+.card {
+  border-radius: 10px;
+  border: none;
+}
+
+.card-header {
+  border-radius: 10px 10px 0 0 !important;
+  padding: 1.2rem 1.5rem;
+}
+
+.form-control:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+.invalid-feedback {
+  display: block;
+}
+
+.btn-primary {
+  padding: 0.5rem 2rem;
+  font-weight: 500;
+}
+
+.btn-primary:disabled {
+  opacity: 0.65;
+}
+
+.btn-secondary {
+  padding: 0.5rem 2rem;
+}
+
+.alert {
+  border: none;
+  border-radius: 8px;
+}
+
+pre {
+  font-size: 0.85rem;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.input-group-text {
+  background-color: #f8f9fa;
+  font-weight: 500;
+}
+
+/* Sidebar Dropdown Styling */
+.sidebar-menu li.dropdown {
+  position: relative;
+}
+
+.sidebar-menu li.dropdown > a {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.sidebar-menu li.dropdown > a:hover {
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+.dropdown-toggle .chevron-icon {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  margin-left: 8px;
+  transition: transform 0.3s ease;
+}
+
+.dropdown-toggle .chevron-icon::after {
+  /* content: "›"; */
+  font-size: 20px;
+  font-weight: bold;
+  display: block;
+}
+
+.sidebar-menu li.dropdown.active > a .chevron-icon {
+  transform: rotate(90deg);
+}
+
+.sidebar-submenu {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease-in-out, opacity 0.35s ease-in-out, visibility 0.35s ease-in-out;
+  opacity: 0;
+  visibility: hidden;
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0 0;
+  display: block;
+}
+
+.sidebar-submenu.show {
+  max-height: 1000px;
+  opacity: 1;
+  visibility: visible;
+}
+
+.sidebar-submenu li {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: block;
+  visibility: visible;
+}
+
+.sidebar-submenu li a {
+  display: block;
+  padding: 10px 16px 10px 32px;
+  text-decoration: none;
+  color: inherit;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.sidebar-submenu li a:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  padding-left: 36px;
+}
+
+.sidebar-submenu li a.active {
+  color: var(--primary-color, #007bff);
+  font-weight: 600;
+  background-color: rgba(0, 123, 255, 0.1);
+}
+
+/* Dropdown Styling */
+.dropdown-menu {
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  animation: dropdownSlide 0.2s ease-out;
+}
+
+@keyframes dropdownSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-menu.show {
+  display: block !important;
+}
+
+.dropdown-item {
+  padding: 8px 16px;
+  transition: all 0.2s ease;
+}
+
+.dropdown-item:hover {
+  background-color: #f3f4f6;
+}
+
+.to-top-list {
+  list-style: none;
+  padding: 12px 0;
+  margin: 0;
+}
+
+.to-top-list li {
+  display: list-item;
+}
+
+/* Button styling for dropdown toggle */
+.dropdown > button {
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
+.dropdown > button:hover img {
+  opacity: 0.8;
+}
+
+/* Position dropdown menu to appear above the button */
+.dropdown-menu.to-top {
+  bottom: 100%;
+  top: auto;
+  margin-bottom: 8px;
+}
+
+/* Small dropdown menu styling */
+.dropdown-menu-sm {
+  min-width: 250px;
+}
+
+/* Ensure dropdown items are properly styled */
+.dropdown-item {
+  border: none;
+  background: transparent;
+  color: inherit;
+  text-decoration: none;
+}
+
+.dropdown-item:focus {
+  background-color: #f3f4f6;
+  outline: none;
+}
