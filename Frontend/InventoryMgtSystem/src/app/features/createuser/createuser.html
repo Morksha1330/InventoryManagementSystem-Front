@@ -1,0 +1,278 @@
+<aside class="sidebar">
+    <button type="button" class="sidebar-close-btn">
+    </button>
+    <div class="sidebar-logo">
+        <img src="assets/images/logo.png" alt="site logo" class="light-logo">
+        <img src="assets/images/logo-icon.png" alt="site logo" class="logo-icon">
+
+    </div>
+<div class="sidebar-menu-area">
+  <ul class="sidebar-menu">
+
+    <!-- Dashboard -->
+    <li>
+      <a routerLink="/dashboard" routerLinkActive="active" >
+        <span>Dashboard</span>
+      </a>
+    </li>
+
+    <!-- User Management -->
+    <li class="dropdown" [class.active]="activeMenu === 'user'">
+      <a (click)="toggle('user')" class="dropdown-toggle">
+        <span>User Management</span>
+        <i class="chevron-icon"></i>
+      </a>
+
+      <ul class="sidebar-submenu"
+          [class.show]="activeMenu === 'user'">
+
+        <li>
+          <a routerLink="/user-list" (click)="onUserClick()">Users</a>
+        </li>
+        <li>
+          <a routerLink="/edit-users">Edit Users</a>
+        </li>
+        <li>
+          <a routerLink="/profile">My Profile</a>
+        </li>
+        <li>
+          <a routerLink="/createuser" (click)="onCreateUser()">Register Users</a>
+        </li>
+
+      </ul>
+    </li>
+
+    <!-- Inventory Management -->
+    <li class="dropdown" [class.active]="activeMenu === 'product'">
+      <a (click)="toggle('product')" class="dropdown-toggle">
+        <span>Inventory Management</span>
+        <i class="chevron-icon"></i>
+      </a>
+
+      <ul class="sidebar-submenu"
+          [class.show]="activeMenu === 'product'">
+
+        <li>
+          <a routerLink="/products">Product List</a>
+        </li>
+        <li>
+          <a routerLink="/categories">Category List</a>
+        </li>
+        <li>
+          <a routerLink="/stock-history">Stock Transaction History</a>
+        </li>
+
+      </ul>
+    </li>
+
+    <!-- Sales -->
+    <li class="dropdown" [class.active]="activeMenu === 'sales'">
+      <a (click)="toggle('sales')" class="dropdown-toggle">
+        <span>Sales Management</span>
+        <i class="chevron-icon"></i>
+      </a>
+
+      <ul class="sidebar-submenu"
+          [class.show]="activeMenu === 'sales'">
+
+        <li>
+          <a routerLink="/stock-report">Customers</a>
+        </li>
+        <li>
+          <a routerLink="/sales-report">Products</a>
+        </li>
+        
+      </ul>
+    </li>
+
+    <!-- Supplier -->
+    <li class="dropdown" [class.active]="activeMenu === 'supplier'">
+      <a (click)="toggle('supplier')" class="dropdown-toggle">
+        <span>Supplier Management</span>
+        <i class="chevron-icon"></i>
+      </a>
+
+      <ul class="sidebar-submenu"
+          [class.show]="activeMenu === 'supplier'">
+
+        <li>
+          <a routerLink="/suppliers">Supplier List</a>
+        </li>
+        <li>
+          <a routerLink="/purchase-orders">Purchase Orders</a>
+        </li>
+        <li>
+          <a routerLink="/create-purchase">Create Purchase</a>
+        </li>
+
+      </ul>
+    </li>
+
+    <!-- Reports -->
+    <li class="dropdown" [class.active]="activeMenu === 'reports'">
+      <a (click)="toggle('reports')" class="dropdown-toggle">
+        <span>Reports</span>
+        <i class="chevron-icon"></i>
+      </a>
+
+      <ul class="sidebar-submenu"
+          [class.show]="activeMenu === 'reports'">
+
+        <li>
+          <a routerLink="/stock-report">Stock Report</a>
+        </li>
+        <li>
+          <a routerLink="/sales-report">Sales Report</a>
+        </li>
+        <li>
+          <a routerLink="/purchase-report">Purchase Report</a>
+        </li>
+        <li>
+          <a routerLink="/profit-loss">Profit / Loss</a>
+        </li>
+
+      </ul>
+    </li>
+
+
+  </ul>
+</div>
+</aside>
+
+
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h3 class="mb-0">Register New User</h3>
+        </div>
+
+        <div class="card-body">
+
+          <!-- Success Message -->
+          <div *ngIf="successMessage" class="alert alert-success alert-dismissible fade show">
+            {{ successMessage }}
+            <button type="button" class="btn-close" (click)="successMessage = ''"></button>
+          </div>
+
+          <!-- Error Message -->
+          <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible fade show">
+            {{ errorMessage }}
+            <button type="button" class="btn-close" (click)="errorMessage = ''"></button>
+          </div>
+
+          <form [formGroup]="UserForm" (ngSubmit)="onSubmit()" novalidate>
+
+            <!-- First Name -->
+            <div class="mb-3">
+              <label class="form-label">First Name <span class="text-danger">*</span></label>
+              <input type="text" class="form-control"
+                formControlName="firstName"
+                placeholder="Enter First Name"
+                [class.is-invalid]="UserForm.get('firstName')?.invalid && UserForm.get('firstName')?.touched">
+
+              <div class="invalid-feedback" *ngIf="UserForm.get('firstName')?.touched">
+                <div *ngIf="UserForm.get('firstName')?.errors?.['required']">First Name is required</div>
+              </div>
+            </div>
+
+            <!-- Last Name -->
+            <div class="mb-3">
+              <label class="form-label">Last Name <span class="text-danger">*</span></label>
+              <input type="text" class="form-control"
+                formControlName="lastName"
+                placeholder="Enter Last Name"
+                [class.is-invalid]="UserForm.get('lastName')?.invalid && UserForm.get('lastName')?.touched">
+
+              <div class="invalid-feedback" *ngIf="UserForm.get('lastName')?.touched">
+                <div *ngIf="UserForm.get('lastName')?.errors?.['required']">Last Name is required</div>
+              </div>
+            </div>
+
+            <!-- Username -->
+            <div class="mb-3">
+              <label class="form-label">Username <span class="text-danger">*</span></label>
+              <input type="text" class="form-control"
+                formControlName="username"
+                placeholder="Enter Username"
+                [class.is-invalid]="UserForm.get('username')?.invalid && UserForm.get('username')?.touched">
+
+              <div class="invalid-feedback" *ngIf="UserForm.get('username')?.touched">
+                <div *ngIf="UserForm.get('username')?.errors?.['required']">Username is required</div>
+              </div>
+            </div>
+
+            <!-- Email -->
+            <div class="mb-3">
+              <label class="form-label">Email <span class="text-danger">*</span></label>
+              <input type="email" class="form-control"
+                formControlName="email"
+                placeholder="Enter Email"
+                [class.is-invalid]="email?.invalid && email?.touched">
+
+              <div *ngIf="email?.invalid && email?.touched" class="invalid-feedback">
+                <div *ngIf="email?.errors?.['required']">Email is required</div>
+                <div *ngIf="email?.errors?.['email']">Invalid email format</div>
+              </div>
+            </div>
+
+            <!-- Phone -->
+            <div class="mb-3">
+              <label class="form-label">Phone</label>
+              <input type="tel" class="form-control"
+                formControlName="phone"
+                placeholder="Enter Phone Number"
+                [class.is-invalid]="phone?.invalid && phone?.touched">
+
+              <div *ngIf="phone?.invalid && phone?.touched" class="invalid-feedback">
+                <div *ngIf="phone?.errors?.['pattern']">Invalid phone number</div>
+              </div>
+            </div>
+
+            <!-- Role Dropdown -->
+            <div class="mb-4">
+              <label class="form-label">Role <span class="text-danger">*</span></label>
+              <select class="form-select"
+                formControlName="role"
+                [class.is-invalid]="UserForm.get('role')?.invalid && UserForm.get('role')?.touched">
+
+                <option value="">-- Select Role --</option>
+                <option value="admin">Admin</option>
+                <option value="manager">Manager</option>
+                <option value="user">User</option>
+              </select>
+
+              <div class="invalid-feedback" *ngIf="UserForm.get('role')?.touched">
+                <div *ngIf="UserForm.get('role')?.errors?.['required']">Role is required</div>
+              </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+              <button type="button" class="btn btn-secondary me-md-2"
+                (click)="UserForm.reset()" [disabled]="isLoading">
+                Clear Form
+              </button>
+
+              <button type="submit" class="btn btn-primary"
+                [disabled]="UserForm.invalid || isLoading" >
+
+                <span *ngIf="isLoading"
+                  class="spinner-border spinner-border-sm me-2"></span>
+
+                {{ isLoading ? 'Adding User...' : 'Add User' }}
+              </button>
+            </div>
+
+          </form>
+        </div>
+
+        <div class="card-footer text-muted">
+          <small>All fields marked with <span class="text-danger">*</span> are required</small>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,86 @@
+<div class="users-container">
+
+  <!-- Header -->
+  <div class="header">
+    <h2>Users Grid</h2>
+    <div class="breadcrumb">Dashboard - <span>Users Grid</span></div>
+  </div>
+
+  <!-- Top Controls -->
+  <div class="controls">
+    <div class="left-controls">
+      <div class="show">
+        <label>Show</label>
+        <select>
+          <option>10</option>
+          <option>25</option>
+          <option>50</option>
+        </select>
+      </div>
+
+      <div class="search">
+        <input type="text" placeholder="Search">
+      </div>
+
+      <div class="status-filter">
+        <select>
+          <option>Status</option>
+          <option>Active</option>
+          <option>Inactive</option> 
+        </select>-
+      </div>
+    </div>
+
+    <button class="add-btn">Add New User</button>
+  </div>
+
+  <!-- Table -->
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th><input type="checkbox"></th>
+          <th>S.L</th>
+          <th>Username</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let user of users; let i = index">
+          <td><input type="checkbox"></td>
+          <td>{{ i + 1 }}</td>
+          <td>{{ user.username }}</td>
+          <td>{{ user.name }}</td>
+          <td>{{ user.email }}</td>
+          <td ngif="user.active === 'Active' ? 'active' : 'Deactive'">{{ user.active }}</td>
+          <td class="actions">
+            <button class="edit" (click)="ClickEdit(user)">✏</button>
+            <button class="delete" (click)="ClickDelete()">🗑</button>
+          </td>
+        </tr>
+        
+      </tbody>
+    </table>
+
+  </div>
+
+
+  <!-- Footer -->
+  <!-- <div class="footer">
+    <span>Showing 1 to 10 of 12 entries</span>
+
+    <div class="pagination">
+      <button>&laquo;</button>
+      <button class="active">1</button>
+      <button>2</button>
+      <button>3</button>
+      <button>&raquo;</button>
+    </div>
+  </div> -->
+
+</div>
+

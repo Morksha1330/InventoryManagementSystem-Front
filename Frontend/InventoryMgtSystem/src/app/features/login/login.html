@@ -1,0 +1,59 @@
+<div class="login-container">
+  <!-- Left Panel -->
+  <div class="left-panel">
+    <div class="logo-section">
+      <div class="logo-icon">
+        <div class="cube cube-1"></div>
+        <div class="cube cube-2"></div>
+      </div>
+      <div class="logo-text">
+        <h1>INVENTORY</h1>
+        <p>TRACK WITH EASE</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Panel -->
+  <div class="right-panel">
+    <div class="login-form-wrapper">
+      <div class="header">
+        <h2>Welcome 👋</h2>
+        <p>Please login here</p>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Username or Email Address</label>
+        <input type="email" id="email" [(ngModel)]="email" placeholder="Username or Email Address" />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <div class="password-wrapper">
+          <input [type]="showPassword ? 'text' : 'password'" id="password" [(ngModel)]="password"
+            placeholder="Password" />
+          <button type="button" class="toggle-password" (click)="togglePasswordVisibility()">
+            <svg *ngIf="!showPassword" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            <svg *ngIf="showPassword" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path
+                d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24">
+              </path>
+              <line x1="1" y1="1" x2="23" y2="23"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="forgot-password">
+        <a href="#">Forgot Password?</a>
+      </div>
+
+      <button class="login-btn" (click)="onLogin()">
+        Login
+      </button>
+
+    </div>
+  </div>
+</div>
