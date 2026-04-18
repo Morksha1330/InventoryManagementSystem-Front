@@ -1,86 +1,370 @@
-<div class="users-container">
+<!-- src/app/features/users/user-list/user-list.component.html -->
 
-  <!-- Header -->
-  <div class="header">
-    <h2>Users Grid</h2>
-    <div class="breadcrumb">Dashboard - <span>Users Grid</span></div>
-  </div>
+<p-toast position="top-right" />
+<p-confirmDialog />
 
-  <!-- Top Controls -->
-  <div class="controls">
-    <div class="left-controls">
-      <div class="show">
-        <label>Show</label>
-        <select>
-          <option>10</option>
-          <option>25</option>
-          <option>50</option>
-        </select>
+<div class="user-list-page">
+
+  <!-- ── Page Header ───────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div class="header-left">
+      <div class="header-icon">
+        <i class="pi pi-users"></i>
       </div>
-
-      <div class="search">
-        <input type="text" placeholder="Search">
-      </div>
-
-      <div class="status-filter">
-        <select>
-          <option>Status</option>
-          <option>Active</option>
-          <option>Inactive</option> 
-        </select>-
+      <div>
+        <h5 class="page-title">User Management</h5>
+        <p class="page-subtitle">
+          {{ totalRecords() }} user{{ totalRecords() !== 1 ? 's' : '' }} registered
+        </p>
       </div>
     </div>
-
-    <button class="add-btn">Add New User</button>
   </div>
 
-  <!-- Table -->
-  <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th><input type="checkbox"></th>
-          <th>S.L</th>
-          <th>Username</th>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Status</th>
-          <th>Action</th>
-        </tr>
-      </thead>
+  <!-- ── Filter Bar ────────────────────────────────────────────────────── -->
+  <div class="filter-bar">
+    <!-- Search -->
+    <p-iconfield class="search-field">
+      <p-inputicon>
+        <i class="pi pi-search"></i>
+      </p-inputicon>
+      <input
+        pInputText
+        type="text"
+        placeholder="Search by name, email, username…"
+        (input)="onSearchInput($event)"
+        class="search-input"
+      />
+    </p-iconfield>
 
-      <tbody>
-        <tr *ngFor="let user of users; let i = index">
-          <td><input type="checkbox"></td>
-          <td>{{ i + 1 }}</td>
-          <td>{{ user.username }}</td>
-          <td>{{ user.name }}</td>
-          <td>{{ user.email }}</td>
-          <td>{{ user.active ? "Active" : "Inactive" }}</td>
-          <td class="actions">
-            <button class="edit" (click)="ClickEdit(user)">✏</button>
-            <button class="delete" (click)="ClickDelete()">🗑</button>
+    <!-- Role Filter -->
+    <p-select
+      [options]="roleOptions"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="All Roles"
+      [ngModel]="selectedRoleFilter()"
+      (ngModelChange)="onRoleFilterChange($event)"
+      class="filter-select"
+    />
+
+    <!-- Status Filter -->
+    <p-select
+      [options]="statusOptions"
+      optionLabel="label"
+      optionValue="value"
+      placeholder="All Status"
+      [ngModel]="selectedStatusFilter()"
+      (ngModelChange)="onStatusFilterChange($event)"
+      class="filter-select"
+    />
+
+    <!-- Page Size -->
+    <p-select
+      [options]="pageSizeOptions"
+      optionLabel="label"
+      optionValue="value"
+      [ngModel]="pageSize()"
+      (ngModelChange)="onPageSizeChange($event)"
+      class="filter-select filter-select--sm"
+    />
+
+    <!-- Clear Filters -->
+    @if (hasActiveFilters) {
+      <button
+        pButton
+        type="button"
+        icon="pi pi-filter-slash"
+        label="Clear"
+        class="p-button-outlined p-button-secondary clear-btn"
+        (click)="clearFilters()"
+        pTooltip="Clear all filters"
+      ></button>
+    }
+  </div>
+
+  <!-- ── Table ─────────────────────────────────────────────────────────── -->
+  <div class="table-wrapper">
+    <p-table
+      #dt
+      [value]="users()"
+      [rows]="pageSize()"
+      [totalRecords]="totalRecords()"
+      [loading]="loading()"
+      [paginator]="true"
+      [lazy]="true"
+      [rowsPerPageOptions]="[10, 20, 50]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} users"
+      [sortMode]="'single'"
+      (onPage)="onPage($event)"
+      (onSort)="onSort($event)"
+      styleClass="p-datatable-gridlines user-table"
+      [tableStyle]="{ 'min-width': '900px' }"
+      responsiveLayout="scroll"
+    >
+      <!-- ── Columns ── -->
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="id" style="width: 60px">#<p-sortIcon field="id" /></th>
+          <th pSortableColumn="name">Name<p-sortIcon field="name" /></th>
+          <th pSortableColumn="username">Username<p-sortIcon field="username" /></th>
+          <th pSortableColumn="email">Email<p-sortIcon field="email" /></th>
+          <th>EPF No</th>
+          <th pSortableColumn="roleName">Role<p-sortIcon field="roleName" /></th>
+          <th pSortableColumn="active" style="width: 110px">Status<p-sortIcon field="active" /></th>
+          <th style="width: 120px; text-align: center">Actions</th>
+        </tr>
+      </ng-template>
+
+      <!-- ── Skeleton loading ── -->
+      <ng-template pTemplate="loadingbody">
+        @for (row of skeletonRows; track $index) {
+          <tr>
+            @for (col of [1,2,3,4,5,6,7,8]; track col) {
+              <td><p-skeleton height="1.75rem" borderRadius="6px" /></td>
+            }
+          </tr>
+        }
+      </ng-template>
+
+      <!-- ── Body ── -->
+      <ng-template pTemplate="body" let-user>
+        <tr class="user-row">
+          <td class="text-muted id-cell">{{ user.id }}</td>
+
+          <!-- Name + avatar -->
+          <td>
+            <div class="user-name-cell">
+              <div
+                class="user-avatar"
+                [style.background]="avatarColor(user.name)"
+              >
+                {{ user.name.charAt(0).toUpperCase() }}
+              </div>
+              <span class="user-name">{{ user.name }}</span>
+            </div>
+          </td>
+
+          <td class="mono-text">{{ user.username }}</td>
+
+          <td>
+            <a [href]="'mailto:' + user.email" class="email-link">{{ user.email }}</a>
+          </td>
+
+          <td class="mono-text text-muted">{{ user.epF_No || '—' }}</td>
+
+          <td>
+            <span class="role-badge role-badge--{{ user.roleId }}">
+              {{ user.roleName || getRoleLabel(user.roleId) }}
+            </span>
+          </td>
+
+          <td>
+            <p-tag
+              [value]="user.active ? 'Active' : 'Inactive'"
+              [severity]="user.active ? 'success' : 'danger'"
+              [rounded]="true"
+            />
+          </td>
+
+          <!-- Actions -->
+          <td class="actions-cell">
+            <div class="action-buttons">
+              <button
+                pButton
+                type="button"
+                icon="pi pi-pencil"
+                class="p-button-rounded p-button-text p-button-info action-btn"
+                pTooltip="Edit user"
+                tooltipPosition="top"
+                (click)="openEdit(user)"
+              ></button>
+
+              <button
+                pButton
+                type="button"
+                [icon]="user.active ? 'pi pi-ban' : 'pi pi-check-circle'"
+                class="p-button-rounded p-button-text action-btn"
+                [ngClass]="user.active ? 'p-button-warning' : 'p-button-success'"
+                [pTooltip]="user.active ? 'Deactivate' : 'Activate'"
+                tooltipPosition="top"
+                (click)="toggleStatus(user)"
+              ></button>
+
+              <button
+                pButton
+                type="button"
+                icon="pi pi-trash"
+                class="p-button-rounded p-button-text p-button-danger action-btn"
+                pTooltip="Delete user"
+                tooltipPosition="top"
+                (click)="confirmDelete(user)"
+              ></button>
+            </div>
           </td>
         </tr>
-        
-      </tbody>
-    </table>
+      </ng-template>
 
+      <!-- ── Empty state ── -->
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="8">
+            <div class="empty-state">
+              <div class="empty-icon">
+                <i class="pi pi-inbox"></i>
+              </div>
+              <h3>No users found</h3>
+              <p>
+                @if (hasActiveFilters) {
+                  Try adjusting your search or filter criteria.
+                  <button
+                    pButton
+                    type="button"
+                    label="Clear Filters"
+                    class="p-button-link"
+                    (click)="clearFilters()"
+                  ></button>
+                } @else {
+                  No users have been registered yet.
+                }
+              </p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+    </p-table>
   </div>
-
-
-  <!-- Footer -->
-  <!-- <div class="footer">
-    <span>Showing 1 to 10 of 12 entries</span>
-
-    <div class="pagination">
-      <button>&laquo;</button>
-      <button class="active">1</button>
-      <button>2</button>
-      <button>3</button>
-      <button>&raquo;</button>
-    </div>
-  </div> -->
-
 </div>
 
+<!-- ── Edit Dialog ────────────────────────────────────────────────────────── -->
+<p-dialog
+  [visible]="editDialogVisible()"
+  (visibleChange)="editDialogVisible.set($event)"
+  [modal]="true"
+  [closable]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '560px' }"
+  styleClass="edit-user-dialog"
+  [header]="'Edit User — ' + (selectedUser()?.name ?? '')"
+  (onHide)="closeDialog()"
+>
+  <form [formGroup]="editForm" class="edit-form" novalidate>
+    <!-- Row 1: Name + Username -->
+    <div class="form-row">
+      <div class="form-field">
+        <label for="name">Full Name <span class="required">*</span></label>
+        <input
+          id="name"
+          pInputText
+          formControlName="name"
+          placeholder="Enter full name"
+          [class.ng-invalid]="fieldError('name')"
+          [class.ng-dirty]="fieldError('name')"
+        />
+        @if (fieldError('name')) {
+          <small class="field-error">{{ fieldErrorMsg('name') }}</small>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="username">Username <span class="required">*</span></label>
+        <input
+          id="username"
+          pInputText
+          formControlName="username"
+          placeholder="Enter username"
+          [class.ng-invalid]="fieldError('username')"
+          [class.ng-dirty]="fieldError('username')"
+        />
+        @if (fieldError('username')) {
+          <small class="field-error">{{ fieldErrorMsg('username') }}</small>
+        }
+      </div>
+    </div>
+
+    <!-- Row 2: Email -->
+    <div class="form-field">
+      <label for="email">Email Address <span class="required">*</span></label>
+      <input
+        id="email"
+        pInputText
+        type="email"
+        formControlName="email"
+        placeholder="Enter email address"
+        [class.ng-invalid]="fieldError('email')"
+        [class.ng-dirty]="fieldError('email')"
+      />
+      @if (fieldError('email')) {
+        <small class="field-error">{{ fieldErrorMsg('email') }}</small>
+      }
+    </div>
+
+    <!-- Row 3: EPF No + Role -->
+    <div class="form-row">
+      <div class="form-field">
+        <label for="epf">EPF Number</label>
+        <input
+          id="epf"
+          pInputText
+          formControlName="epf_No"
+          placeholder="EPF number (optional)"
+        />
+      </div>
+
+      <div class="form-field">
+        <label for="role">Role <span class="required">*</span></label>
+        <p-select
+          inputId="role"
+          [options]="roleFormOptions"
+          optionLabel="label"
+          optionValue="value"
+          formControlName="roleId"
+          placeholder="Select role"
+          [class.ng-invalid]="fieldError('roleId')"
+          [class.ng-dirty]="fieldError('roleId')"
+          styleClass="w-full"
+        />
+        @if (fieldError('roleId')) {
+          <small class="field-error">{{ fieldErrorMsg('roleId') }}</small>
+        }
+      </div>
+    </div>
+
+    <!-- Row 4: Active toggle -->
+    <div class="form-field toggle-field">
+      <label>Account Status</label>
+      <div class="toggle-row">
+        <p-toggleswitch formControlName="active" />
+        <span class="toggle-label">
+          {{ editForm.get('active')?.value ? 'Active — user can log in' : 'Inactive — login disabled' }}
+        </span>
+      </div>
+    </div>
+  </form>
+
+  <!-- Dialog footer -->
+  <ng-template pTemplate="footer">
+    <div class="dialog-footer">
+      <button
+        pButton
+        type="button"
+        label="Cancel"
+        icon="pi pi-times"
+        class="p-button-outlined p-button-secondary"
+        (click)="closeDialog()"
+        [disabled]="saving()"
+      ></button>
+      <button
+        pButton
+        type="button"
+        label="Save Changes"
+        icon="pi pi-check"
+        class="p-button-primary"
+        (click)="saveUser()"
+        [loading]="saving()"
+      ></button>
+    </div>
+  </ng-template>
+</p-dialog>

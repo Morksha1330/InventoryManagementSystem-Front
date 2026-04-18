@@ -1,75 +1,352 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ImportsModule } from '../../imports/imports';
-import { User } from '../../core/models/user.interface';
+import { AddUserDto, RoleOption, StatusOption, User, UserFilterDto } from '../../core/models/user.interface';
 import { UserService } from '../../core/services/user.service';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { MessageService, ConfirmationService } from 'primeng/api';
+import { Table } from 'primeng/table';
+import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-user-list',
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, ImportsModule],
+  providers: [ConfirmationService],
   templateUrl: './user-list.html',
   styleUrl: './user-list.css',
 })
-export class UserList implements OnInit {
-  users: User[] = [];
-  selectedUser: User = {} as User;
-  isModalOpen: boolean = false;
-
+export class UserList implements OnInit, OnDestroy{
+   @ViewChild('dt') dt!: Table;
+ 
+  // ── state ────────────────────────────────────────────────────────────────
+  users = signal<User[]>([]);
+  totalRecords = signal<number>(0);
+  loading = signal<boolean>(false);
+  editDialogVisible = signal<boolean>(false);
+  saving = signal<boolean>(false);
+  selectedUser = signal<User | null>(null);
+ 
+  // ── filter state ─────────────────────────────────────────────────────────
+  searchTerm = signal<string>('');
+  selectedRoleFilter = signal<number | null>(null);
+  selectedStatusFilter = signal<boolean | null>(null);
+ 
+  currentPage = signal<number>(1);
+  pageSize = signal<number>(10);
+  sortField = signal<string>('id');
+  sortOrder = signal<string>('ASC');
+ 
+  private destroy$ = new Subject<void>();
+  private searchSubject = new Subject<string>();
+ 
+  // ── form ─────────────────────────────────────────────────────────────────
+  editForm!: FormGroup;
+ 
+  // ── options ──────────────────────────────────────────────────────────────
+  roleOptions: RoleOption[] = [
+    { label: 'All Roles', value: null },
+    { label: 'Admin', value: 1 },
+    { label: 'Manager', value: 2 },
+    {label: 'Operator', value: 3 },
+    { label: 'Viewer', value: 4 },
+  ];
+ 
+  roleFormOptions = [
+    { label: 'Admin', value: 1 },
+    { label: 'Manager', value: 2 },
+    { label: 'Operator', value: 3 },
+    { label: 'Viewer', value: 4 },
+  ];
+ 
+  statusOptions: StatusOption[] = [
+    { label: 'All Status', value: null },
+    { label: 'Active', value: true },
+    { label: 'Inactive', value: false },
+  ];
+ 
+  pageSizeOptions = [
+    { label: '10 / page', value: 10 },
+    { label: '20 / page', value: 20 },
+    { label: '50 / page', value: 50 },
+  ];
+ 
   constructor(
     private userService: UserService,
-    private authService: AuthService,
-    private router: Router,
-    private cdr: ChangeDetectorRef
+    private fb: FormBuilder,
+    private messageService: MessageService,
+    private confirmationService: ConfirmationService,
   ) {}
-
-
-  
+ 
   ngOnInit(): void {
+    this.buildForm();
     this.loadUsers();
+ 
+    // Debounced search
+    this.searchSubject
+      .pipe(debounceTime(400), distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe((term) => {
+        this.searchTerm.set(term);
+        this.currentPage.set(1);
+        this.loadUsers();
+      });
   }
-
-  loadUsers() {
-    this.userService.getUsers().subscribe({
-      next: (data) => {
-        this.users = data;
-        this.cdr.detectChanges();
-        console.log('Users Loaded:', data);
-      },
-      error: (err) => {
-        console.error('Error loading users', err);
-      }
+ 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+ 
+  // ── form helpers ─────────────────────────────────────────────────────────
+ 
+  private buildForm(user?: User): void {
+    this.editForm = this.fb.group({
+      name: [user?.name ?? '', [Validators.required, Validators.minLength(2)]],
+      username: [user?.username ?? '', [Validators.required, Validators.minLength(3)]],
+      email: [user?.email ?? '', [Validators.required, Validators.email]],
+      epf_No: [user?.epF_No ?? ''],
+      roleId: [user?.roleId ?? null, Validators.required],
+      active: [user?.active ?? true],
     });
   }
-
- ClickEdit(user: User) {
-  console.log("clicked on the edit button");
-  this.selectedUser = { ...user }; // clone object
-  this.isModalOpen = true;
-}
-
-closeModal() {
-  this.isModalOpen = false;
-}
-
-updateUser() {
-  this.userService.updateUser(this.selectedUser.id, this.selectedUser).subscribe({
-    next: () => {
-      console.log('User updated successfully');
-
-      this.closeModal();
-      this.loadUsers(); // refresh table
-    },
-    error: (err) => {
-      console.error('Update failed', err);
+ 
+  // ── data loading ─────────────────────────────────────────────────────────
+ 
+  loadUsers(): void {
+    this.loading.set(true);
+ 
+    const filter: UserFilterDto = {
+      pageNumber: this.currentPage(),
+      pageSize: this.pageSize(),
+      searchTerm: this.searchTerm() || undefined,
+      roleId: this.selectedRoleFilter() ?? undefined,
+      active: this.selectedStatusFilter() ?? undefined,
+      sortBy: this.sortField(),
+      sortOrder: this.sortOrder(),
+    };
+ 
+    this.userService
+      .getPagedUsers(filter)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          if (res.success) {
+            this.users.set(res.data);
+            console.log('Loaded users:', res.data);
+            this.totalRecords.set(res.pagination.totalCount);
+          } else {
+            this.showError('Failed to load users', res.message);
+          }
+          this.loading.set(false);
+        },
+        error: (err) => {
+          this.showError('Error', 'Could not fetch users. Please try again.');
+          this.loading.set(false);
+        },
+      });
+  }
+ 
+  // ── table events ─────────────────────────────────────────────────────────
+ 
+  onPage(event: any): void {
+    this.currentPage.set(event.first / event.rows + 1);
+    this.pageSize.set(event.rows);
+    this.loadUsers();
+  }
+ 
+  onSort(event: any): void {
+    this.sortField.set(event.field);
+    this.sortOrder.set(event.order === 1 ? 'ASC' : 'DESC');
+    this.currentPage.set(1);
+    this.loadUsers();
+  }
+ 
+  onSearchInput(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.searchSubject.next(value);
+  }
+ 
+  onRoleFilterChange(value: number | null): void {
+    this.selectedRoleFilter.set(value);
+    this.currentPage.set(1);
+    this.loadUsers();
+  }
+ 
+  onStatusFilterChange(value: boolean | null): void {
+    this.selectedStatusFilter.set(value);
+    this.currentPage.set(1);
+    this.loadUsers();
+  }
+ 
+  onPageSizeChange(value: number): void {
+    this.pageSize.set(value);
+    this.currentPage.set(1);
+    this.loadUsers();
+  }
+ 
+  clearFilters(): void {
+    this.searchTerm.set('');
+    this.selectedRoleFilter.set(null);
+    this.selectedStatusFilter.set(null);
+    this.currentPage.set(1);
+    this.loadUsers();
+  }
+ 
+  // ── actions ───────────────────────────────────────────────────────────────
+ 
+  openEdit(user: User): void {
+    this.selectedUser.set(user);
+    this.buildForm(user);
+    this.editDialogVisible.set(true);
+  }
+ 
+  closeDialog(): void {
+    this.editDialogVisible.set(false);
+    this.selectedUser.set(null);
+    this.editForm.reset();
+  }
+ 
+  saveUser(): void {
+    if (this.editForm.invalid) {
+      this.editForm.markAllAsTouched();
+      return;
     }
-  });
-}
-
-ClickDelete() {
-throw new Error('Method not implemented.');
-}
+ 
+    const user = this.selectedUser();
+    if (!user) return;
+ 
+    this.saving.set(true);
+ 
+    const payload: AddUserDto = {
+      id: user.id,
+      ...this.editForm.value,
+    };
+ 
+    this.userService
+      .updateUser(user.id, payload)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          if (res.success) {
+            this.showSuccess('User updated successfully');
+            this.closeDialog();
+            this.loadUsers();
+          } else {
+            this.showError('Update failed', res.message);
+          }
+          this.saving.set(false);
+        },
+        error: () => {
+          this.showError('Error', 'Could not update user. Please try again.');
+          this.saving.set(false);
+        },
+      });
+  }
+ 
+  confirmDelete(user: User): void {
+    this.confirmationService.confirm({
+      message: `Are you sure you want to delete <strong>${user.name}</strong>? This action cannot be undone.`,
+      header: 'Confirm Delete',
+      icon: 'pi pi-exclamation-triangle',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => this.deleteUser(user),
+    });
+  }
+ 
+  private deleteUser(user: User): void {
+    this.userService
+      .deleteUser(user.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          if (res.success) {
+            this.showSuccess(`${user.name} deleted successfully`);
+            this.loadUsers();
+          } else {
+            this.showError('Delete failed', res.message);
+          }
+        },
+        error: () => this.showError('Error', 'Could not delete user.'),
+      });
+  }
+ 
+  toggleStatus(user: User): void {
+    this.userService
+      .toggleUserStatus(user.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          if (res.success) {
+            const status = res.result.active ? 'activated' : 'deactivated';
+            this.showSuccess(`${user.name} ${status}`);
+            this.loadUsers();
+          } else {
+            this.showError('Toggle failed', res.message);
+          }
+        },
+        error: () => this.showError('Error', 'Could not toggle status.'),
+      });
+  }
+ 
+  // ── helpers ───────────────────────────────────────────────────────────────
+ 
+  getRoleLabel(roleId: number): string {
+    return this.roleFormOptions.find((r) => r.value === roleId)?.label ?? 'Unknown';
+  }
+ 
+  get hasActiveFilters(): boolean {
+    return (
+      !!this.searchTerm() ||
+      this.selectedRoleFilter() !== null ||
+      this.selectedStatusFilter() !== null
+    );
+  }
+ 
+  private showSuccess(detail: string): void {
+    this.messageService.add({ severity: 'success', summary: 'Success', detail, life: 3000 });
+  }
+ 
+  private showError(summary: string, detail?: string): void {
+    this.messageService.add({ severity: 'error', summary, detail: detail ?? '', life: 4000 });
+  }
+ 
+  // ── template helpers ──────────────────────────────────────────────────────
+ 
+  skeletonRows = Array(8).fill(null);
+ 
+  /** Deterministic avatar background colour from a name string */
+  avatarColor(name: string): string {
+    const palette = [
+      '#6366f1','#8b5cf6','#ec4899','#f59e0b',
+      '#10b981','#3b82f6','#ef4444','#14b8a6',
+    ];
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    return palette[Math.abs(hash) % palette.length];
+  }
+ 
+  fieldError(field: string): boolean {
+    const ctrl = this.editForm.get(field);
+    return !!(ctrl?.invalid && ctrl?.touched);
+  }
+ 
+  fieldErrorMsg(field: string): string {
+    const ctrl = this.editForm.get(field);
+    if (!ctrl?.errors) return '';
+    if (ctrl.errors['required']) return `${this.fieldLabel(field)} is required`;
+    if (ctrl.errors['email']) return 'Enter a valid email address';
+    if (ctrl.errors['minlength'])
+      return `Minimum ${ctrl.errors['minlength'].requiredLength} characters`;
+    return 'Invalid value';
+  }
+ 
+  private fieldLabel(field: string): string {
+    const map: Record<string, string> = {
+      name: 'Name', username: 'Username', email: 'Email',
+      roleId: 'Role', epf_No: 'EPF No',
+    };
+    return map[field] ?? field;
+  }
 }

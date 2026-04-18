@@ -73,7 +73,7 @@ export class AuthService {
                 name: decoded.name || decoded.Name || decoded.firstName,
                 email: decoded.email || decoded.Email,
                 role: decoded.role || decoded.Role,
-                epf_No: decoded.epf_No || decoded.EPF_No,
+                epF_No: decoded.epF_No || decoded.EPF_No,
                 active: decoded.active || decoded.Active,
                 status: undefined,
                 phone: ''
@@ -135,7 +135,7 @@ export class AuthService {
             name: user.name,
             email: user.email,
             role: user.roleName,
-            epf_No: user.epf_No,
+            epF_No: user.epF_No,
             active: user.active,
             status: undefined,
             phone: ''
