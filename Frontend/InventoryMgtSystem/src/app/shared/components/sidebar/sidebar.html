@@ -12,7 +12,7 @@
     <div class="logo-section">
       <div class="logo-content" [class.centered]="isLeftSidebarCollapsed()">
         <button class="logo-icon" (click)="toggleCollapse()">
-          <i class="fas fa-bars"></i>
+          <i class="pi pi-bars"></i>
         </button>
         <div class="logo-text" *ngIf="!isLeftSidebarCollapsed()">
           <span class="brand-name">Title Goes Here</span>
@@ -74,6 +74,7 @@
               routerLinkActive="active"
               class="submenu-item"
             >
+                <i class="submenu-icon" [ngClass]="child.icon"></i>
               <span class="submenu-label">{{ child.label }}</span>
             </a>
           </div>

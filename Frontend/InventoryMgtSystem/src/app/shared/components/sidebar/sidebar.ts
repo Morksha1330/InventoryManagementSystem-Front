@@ -15,6 +15,7 @@ import { MatButtonModule } from '@angular/material/button';
 
 interface SidebarSubItem {
   routeLink: string;
+  icon: string;
   label: string;
   roles: string[];
 }
@@ -65,10 +66,10 @@ export class Sidebar {
         label: 'User Management',
         roles: ['Admin'],
         children: [
-          { routeLink: 'user-list', label: 'Users', roles: ['Admin'] },
-          { routeLink: 'edit-users', label: 'Edit Users', roles: ['Admin'] },
-          { routeLink: 'profile', label: 'My Profile', roles: ['Viewer', 'Admin', 'Manager', 'Operator'] },
-          { routeLink: 'createuser', label: 'Register Users', roles: ['Admin'] }
+          { routeLink: 'user-list', icon: 'pi pi-users', label: 'Users', roles: ['Admin'] },
+          { routeLink: 'edit-users', icon: 'pi pi-pencil', label: 'Edit Users', roles: ['Admin'] },
+          { routeLink: 'profile', icon: 'pi pi-user', label: 'My Profile', roles: ['Viewer', 'Admin', 'Manager', 'Operator'] },
+          { routeLink: 'createuser', icon: 'pi pi-plus', label: 'Register Users', roles: ['Admin'] }
         ]
       },
       {
@@ -76,9 +77,9 @@ export class Sidebar {
         label: 'Inventory Management',
         roles: ['Viewer', 'Admin', 'Manager', 'Operator'],
         children: [
-          { routeLink: 'products', label: 'Product List', roles: ['Viewer', 'Admin', 'Manager', 'Operator'] },
-          { routeLink: 'categories', label: 'Category List', roles: ['Viewer', 'Admin', 'Manager', 'Operator'] },
-          { routeLink: 'stock-history', label: 'Stock Transaction History', roles: ['Viewer', 'Admin', 'Manager', 'Operator'] }
+          { routeLink: 'products', icon: 'pi pi-box', label: 'Product List', roles: ['Viewer', 'Admin', 'Manager', 'Operator'] },
+          { routeLink: 'categories', icon: 'pi pi-tags', label: 'Category List', roles: ['Viewer', 'Admin', 'Manager', 'Operator'] },
+          { routeLink: 'stock-history', icon: 'pi pi-history', label: 'Stock Transaction History', roles: ['Viewer', 'Admin', 'Manager', 'Operator'] }
         ]
       },
       {
@@ -86,8 +87,8 @@ export class Sidebar {
         label: 'Sales Management',
         roles: ['Viewer', 'Admin', 'Manager', 'Operator'],
         children: [
-          { routeLink: 'customers', label: 'Customers', roles: ['Viewer', 'Admin', 'Manager', 'Operator'] },
-          { routeLink: 'sales-products', label: 'Products', roles: ['Viewer', 'Admin', 'Manager', 'Operator'] }
+          { routeLink: 'customers', icon: 'pi pi-users', label: 'Customers', roles: ['Viewer', 'Admin', 'Manager', 'Operator'] },
+          { routeLink: 'sales-products', icon: 'pi pi-box', label: 'Products', roles: ['Viewer', 'Admin', 'Manager', 'Operator'] }
         ]
       },
       {
@@ -95,9 +96,9 @@ export class Sidebar {
         label: 'Supplier Management',
         roles: ['Viewer', 'Admin', 'Manager', 'Operator'],
         children: [
-          { routeLink: 'suppliers', label: 'Supplier List', roles: ['Viewer', 'Admin', 'Manager', 'Operator'] },
-          { routeLink: 'purchase-orders', label: 'Purchase Orders', roles: ['Viewer', 'Admin', 'Manager', 'Operator'] },
-          { routeLink: 'create-purchase', label: 'Create Purchase', roles: ['Viewer', 'Admin', 'Manager', 'Operator'] }
+          { routeLink: 'suppliers', icon: 'pi pi-truck', label: 'Supplier List', roles: ['Viewer', 'Admin', 'Manager', 'Operator'] },
+          { routeLink: 'purchase-orders', icon: 'pi pi-shopping-cart', label: 'Purchase Orders', roles: ['Viewer', 'Admin', 'Manager', 'Operator'] },
+          { routeLink: 'create-purchase', icon: 'pi pi-plus', label: 'Create Purchase', roles: ['Viewer', 'Admin', 'Manager', 'Operator'] }
         ]
       },
       {
@@ -105,10 +106,10 @@ export class Sidebar {
         label: 'Reports',
         roles: ['Viewer', 'Admin', 'Manager', 'Operator'],
         children: [
-          { routeLink: 'stock-report', label: 'Stock Report', roles: ['Viewer', 'Admin', 'Manager', 'Operator'] },
-          { routeLink: 'sales-report', label: 'Sales Report', roles: ['Viewer', 'Admin', 'Manager', 'Operator'] },
-          { routeLink: 'purchase-report', label: 'Purchase Report', roles: ['Viewer', 'Admin', 'Manager', 'Operator'] },
-          { routeLink: 'profit-loss', label: 'Profit / Loss', roles: ['Viewer', 'Admin', 'Manager', 'Operator'] }
+          { routeLink: 'stock-report', icon: 'pi pi-chart-bar', label: 'Stock Report', roles: ['Viewer', 'Admin', 'Manager', 'Operator'] },
+          { routeLink: 'sales-report', icon: 'pi pi-chart-line', label: 'Sales Report', roles: ['Viewer', 'Admin', 'Manager', 'Operator'] },
+          { routeLink: 'purchase-report', icon: 'pi pi-file-alt', label: 'Purchase Report', roles: ['Viewer', 'Admin', 'Manager', 'Operator'] },
+          { routeLink: 'profit-loss', icon: 'pi pi-dollar-sign', label: 'Profit / Loss', roles: ['Viewer', 'Admin', 'Manager', 'Operator'] }
         ]
       }
     ];
