@@ -8,6 +8,7 @@ status: any;
   username:string;
   active: string;
   role : string
+  epf_No?: string;
 }
 
 export interface AddUserDto {

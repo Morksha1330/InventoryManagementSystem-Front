@@ -1,0 +1,84 @@
+    <header class="header">
+      <div class="header-left">
+        <button 
+          class="menu-toggle md:hidden"
+          (click)="toggleSidebar.emit(!isLeftSidebarCollapsed())"
+        >
+          <i class="fas fa-bars"></i>
+        </button>
+        
+        <div class="breadcrumb">
+          <h1>Dashboard</h1>
+          <!-- <p class="text-gray-600">Welcome back!</p> -->
+        </div>
+      </div>
+
+      <div class="header-right">
+        <!-- Notifications -->
+        <button class="notification-btn">
+          <!-- <i class="fas fa-bell"></i>
+          <span class="notification-badge">3</span> -->
+        </button>
+
+        <!-- User Dropdown -->
+        <div class="user-dropdown" [class.active]="showDropdown">
+          <button class="user-btn" (click)="toggleDropdown()">
+          <div class="user-avatar" *ngIf="currentUser$ | async as user">
+          <!-- <ng-container *ngIf="user.profileImageUrl; else initialsAvatar"> -->
+        <ng-container>
+            <img 
+              [alt]="user.name"
+              class="avatar-img"
+              (error)="onImageError($event)" 
+            />
+          </ng-container>
+          <ng-template #initialsAvatar>
+            <div class="avatar-fallback">
+              {{ user.name }}
+            </div>
+          </ng-template>
+        </div>
+            <div class="user-info" *ngIf="currentUser$ | async as user">
+              <span class="user-name">{{user.name}}</span>
+              <span class="user-role">{{user.role}}</span>
+            </div>
+            <i class="fas fa-chevron-down dropdown-arrow"></i>
+          </button>
+
+          <div class="dropdown-menu" *ngIf="showDropdown">
+            <div class="dropdown-header" *ngIf="currentUser$ | async as user">
+              <div class="user-details">
+                <strong>{{user.name}}</strong>
+                <small>{{user.email}}</small>
+                <span class="role-badge">{{user.role}}</span>
+              </div>
+            </div>
+            
+            <div class="dropdown-divider"></div>
+            
+            <a routerLink="./profile" class="dropdown-item">
+              <i class="fas fa-user"></i>
+              Profile Settings
+            </a>
+            <!-- <a href="#" class="dropdown-item">
+              <i class="fas fa-cog"></i>
+              Preferences
+            </a>
+            <a href="#" class="dropdown-item">
+              <i class="fas fa-question-circle"></i>
+              Help & Support
+            </a> -->
+            
+            <div class="dropdown-divider"></div>
+            
+            <button class="dropdown-item logout-btn" (click)="logout()">
+              <i class="fas fa-sign-out-alt"></i>
+              Sign Out
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dropdown backdrop -->
+      <div class="dropdown-backdrop" *ngIf="showDropdown" (click)="closeDropdown()"></div>
+    </header>
