@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { ImportsModule } from '../../imports/imports';
 import { User } from '../../core/models/user.interface';
@@ -22,7 +22,9 @@ export class UserList implements OnInit {
   constructor(
     private userService: UserService,
     private authService: AuthService,
-    private router: Router) {}
+    private router: Router,
+    private cdr: ChangeDetectorRef
+  ) {}
 
 
   
@@ -34,6 +36,7 @@ export class UserList implements OnInit {
     this.userService.getUsers().subscribe({
       next: (data) => {
         this.users = data;
+        this.cdr.detectChanges();
         console.log('Users Loaded:', data);
       },
       error: (err) => {

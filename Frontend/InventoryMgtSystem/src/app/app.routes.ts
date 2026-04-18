@@ -63,7 +63,7 @@ export const routes: Routes = [
         data: { 
           title: 'Users',
           roles: ['Admin'],
-          showHeader: true 
+          showHeader: false 
         }
         // canActivate: [RoleGuard]
       },
@@ -73,7 +73,7 @@ export const routes: Routes = [
         data: { 
           title: 'Edit Users',
           roles: ['Admin'],
-          showHeader: true 
+          showHeader: false 
         }
         // canActivate: [RoleGuard]
       },
@@ -92,7 +92,7 @@ export const routes: Routes = [
         data: { 
           title: 'Register Users',
           roles: ['Admin'],
-          showHeader: true 
+          showHeader: false 
         }
         // canActivate: [RoleGuard]
       },
@@ -104,7 +104,7 @@ export const routes: Routes = [
         data: { 
           title: 'Product List',
           roles: ['Viewer', 'Admin', 'Manager', 'Operator'],
-          showHeader: true 
+          showHeader: false 
         }
       },
     //   {
@@ -133,7 +133,7 @@ export const routes: Routes = [
         data: { 
           title: 'Customers',
           roles: ['Viewer', 'Admin', 'Manager', 'Operator'],
-          showHeader: true 
+          showHeader: false 
         }
       },
     //   {
