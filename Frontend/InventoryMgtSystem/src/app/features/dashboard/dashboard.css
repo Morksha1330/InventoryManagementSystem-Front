@@ -214,8 +214,8 @@
 .card-title-icon.icon-red { color: #ef4444; }
 
 .card-title {
-  font-size: 0.95rem;
-  font-weight: 600;
+  font-size: clamp(16px, 1.6vw, 1.8px);
+  font-weight: 700;
   color: #111827;
   margin: 0;
 }
