@@ -9,7 +9,7 @@ import { UserList } from './features/user-list/user-list';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, Login, Createuser, HttpClientModule, Dashboard, UserList],
+  imports: [RouterOutlet],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

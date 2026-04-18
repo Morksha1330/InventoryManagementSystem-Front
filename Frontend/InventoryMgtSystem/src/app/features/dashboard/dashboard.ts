@@ -56,6 +56,7 @@ loadUserCount() {
     this.dashboard.TotalUserCount().subscribe({
       next: (totalUsers) => {
         this.totalUsers = totalUsers;
+        this.cdr.detectChanges();
         console.log('Total Users:', totalUsers);
       },
       error: (err) => {
@@ -68,6 +69,7 @@ loadProductCount() {
     this.dashboard.TotalProductCount().subscribe({
       next: (totProducts) => {
         this.totProducts = totProducts;
+        this.cdr.detectChanges();
          console.log('Total prods:', totProducts);
       },
       error: (err) => {
@@ -80,6 +82,7 @@ loadCategoryCount() {
     this.dashboard.TotalCategoryCount().subscribe({
       next: (totCats) => {
         this.totCategory = totCats;
+        this.cdr.detectChanges();
         console.log('Total cats:', totCats);
 },
       error: (err) => {
@@ -92,6 +95,7 @@ loadCustomerCount() {
     this.dashboard.TotalCustomerCount().subscribe({
       next: (totCustomer) => {
         this.totCustomer = totCustomer;
+        this.cdr.detectChanges();
         console.log('Total customers:', totCustomer);
       },
       error: (err) => {
@@ -103,7 +107,10 @@ loadCustomerCount() {
   loadExpensesCount() {
     this.dashboard.TotalExpenseCount().subscribe({
       next: (totExpense) => {
-        this.totExpense = totExpense;},
+        this.totExpense = totExpense;
+        this.cdr.detectChanges();
+        console.log('Total expenses:', totExpense);
+      },
       error: (err) => {
         console.error('Error loading expenses count', err);
       }
@@ -113,7 +120,10 @@ loadCustomerCount() {
 loadTopSellingProducts() {
     this.dashboard.TopSellingProducts().subscribe({
       next: (SellingProducts) => {
-        this.topSellingProducts = SellingProducts;},
+        this.topSellingProducts = SellingProducts;
+        this.cdr.detectChanges();
+        console.log('Top selling products:', SellingProducts);
+      },
       error: (err) => {
         console.error('Error loading top selling products', err);
       }
