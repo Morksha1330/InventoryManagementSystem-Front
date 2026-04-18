@@ -1,46 +1,57 @@
-import { Component, EventEmitter, inject, Input, input, Output, output } from '@angular/core';
-import { Observable } from 'rxjs';
-import { User } from '../../../core/models/user.interface';
-import { AuthService } from '../../../core/services/auth.service';
 import { CommonModule } from '@angular/common';
+import { Component, EventEmitter, Input, OnInit, Output, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { Observable } from 'rxjs';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule,RouterModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './header.html',
   styleUrl: './header.css',
 })
-export class Header {
-@Input() collapsed = false;
-@Output() toggle = new EventEmitter<boolean>();
-  isLeftSidebarCollapsed = input<boolean>(false);
-  toggleSidebar = output<boolean>();
+export class Header implements OnInit {
+
+  @Input() isLeftSidebarCollapsed = signal(false);
+  @Input() pageTitle = 'Dashboard';
+
+  @Output() toggleSidebar = new EventEmitter<boolean>();
 
   showDropdown = false;
-  currentUser$!: Observable<User | null>;
+  currentUser$!: Observable<any>;
 
-  private authService = inject(AuthService);
+  constructor(private authService: AuthService) {}
 
   ngOnInit(): void {
-   // this.currentUser$ = this.authService.currentUser$;
-  //  console.log('Current User in Header:', this.currentUser$);
+    this.currentUser$ = this.authService.currentUser$;
   }
 
-  toggleDropdown(): void {
+  toggleDropdown() {
     this.showDropdown = !this.showDropdown;
   }
 
-  closeDropdown(): void {
+  closeDropdown() {
     this.showDropdown = false;
   }
 
-  logout(): void {
-    this.authService.logout();
-    this.closeDropdown();
+  getInitials(name: string): string {
+    if (!name) return '?';
+    return name
+      .split(' ')
+      .slice(0, 2)
+      .map(n => n[0])
+      .join('')
+      .toUpperCase();
   }
+
   onImageError(event: Event) {
-    (event.target as HTMLImageElement).style.display = 'none';
+    const img = event.target as HTMLImageElement;
+    img.style.display = 'none';
+  }
+
+  logout() {
+    this.authService.logout();
+    this.showDropdown = false;
   }
 }

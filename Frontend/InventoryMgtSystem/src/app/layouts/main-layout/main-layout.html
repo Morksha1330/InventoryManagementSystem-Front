@@ -5,7 +5,7 @@
   <div class="body">
     <app-header
       *ngIf="showHeader()"
-      [isLeftSidebarCollapsed]="isSidebarCollapsed()"
+      [isLeftSidebarCollapsed]="isSidebarCollapsed"
       (toggleSidebar)="changeIsLeftSidebarCollapsed($event)"
     />
     <main class="page-content" [class.no-header]="!showHeader()">
