@@ -4,17 +4,14 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-    success: boolean;
-    message: string;
-    responsCode: number;
-    result: {
-        token: string;
-        user: {
-            id: number;
-            username: string;
-            name: string;
-            email: string;
-            role: string;
-        };
+    token: string;
+    user: {
+        id: number;
+        username: string;
+        name: string;
+        email: string;
+        role: string;
+        epf_No?: string;
+        active?: boolean;
     };
 }

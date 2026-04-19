@@ -69,7 +69,7 @@ onCreateUser() {
       this.userService.addUser(UserData).subscribe({
         next: (response) => {
           this.isLoading = false;
-          this.successMessage = `User ${response.username} added successfully with ID: ${response.id}`;
+          this.successMessage = `User ${response.result.username} added successfully with ID: ${response.result.id}`;
           this.UserForm.reset();
 
           setTimeout(() => {

@@ -1,0 +1,303 @@
+/* ─── Header Shell ───────────────────────────────────────
+   The header sits inside .main-content (mat-sidenav-content).
+   It does NOT span the sidebar — the sidebar handles its own
+   width. We just need the header to fill its container.
+───────────────────────────────────────────────────────── */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  height: 60px;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* ─── Left ───────────────────────────────────────────── */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.menu-toggle {
+  display: none;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #6b7280;
+  font-size: 1rem;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+}
+
+.menu-toggle:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+@media (max-width: 768px) {
+  .menu-toggle { display: flex; }
+}
+
+.breadcrumb-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+  letter-spacing: -0.2px;
+}
+
+/* ─── Right ──────────────────────────────────────────── */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Icon-only button (bell, theme toggle, etc.) */
+.icon-btn {
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #6b7280;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: background 0.2s;
+}
+
+.icon-btn:hover {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.notif-dot {
+  position: absolute;
+  top: 7px;
+  right: 7px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+  border: 2px solid #fff;
+}
+
+/* ─── User Dropdown ──────────────────────────────────── */
+.user-dropdown {
+  position: relative;
+}
+
+.user-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.35rem 0.6rem;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.user-btn:hover {
+  background: #f9fafb;
+  border-color: #d1d5db;
+}
+
+.user-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #0d9488;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-initials {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #fff;
+  text-transform: uppercase;
+}
+
+.user-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.2;
+}
+
+.user-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.user-role {
+  font-size: 0.7rem;
+  color: #9ca3af;
+  text-transform: capitalize;
+}
+
+.chevron {
+  font-size: 0.65rem;
+  color: #9ca3af;
+  transition: transform 0.25s ease;
+}
+
+.chevron.rotated { transform: rotate(180deg); }
+
+/* ─── Dropdown Menu ──────────────────────────────────── */
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 220px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  z-index: 200;
+  overflow: hidden;
+  animation: menuIn 0.18s ease-out;
+}
+
+@keyframes menuIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.dropdown-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0.9rem 1rem;
+  background: #f9fafb;
+}
+
+.dh-avatar {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: 50%;
+  background: #0d9488;
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dh-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+}
+
+.dh-info strong {
+  font-size: 0.82rem;
+  color: #111827;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dh-info small {
+  font-size: 0.7rem;
+  color: #9ca3af;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.role-badge {
+  display: inline-block;
+  margin-top: 2px;
+  padding: 1px 7px;
+  background: #e5e7eb;
+  color: #374151;
+  font-size: 0.65rem;
+  font-weight: 600;
+  border-radius: 4px;
+  text-transform: capitalize;
+}
+
+.menu-divider {
+  height: 1px;
+  background: #f3f4f6;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.65rem 1rem;
+  font-size: 0.82rem;
+  color: #374151;
+  text-decoration: none;
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.menu-item:hover { background: #f9fafb; }
+
+.menu-item i {
+  font-size: 0.85rem;
+  color: #9ca3af;
+  width: 16px;
+}
+
+.menu-item-danger { color: #ef4444; }
+.menu-item-danger i { color: #ef4444; }
+.menu-item-danger:hover { background: #fef2f2; }
+
+/* ─── Backdrop ───────────────────────────────────────── */
+.dropdown-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+  background: transparent;
+}
+
+/* ─── Responsive ─────────────────────────────────────── */
+@media (max-width: 640px) {
+  .header-inner { padding: 0 1rem; }
+  .user-meta { display: none; }
+  .chevron { display: none; }
+  .user-btn { border: none; background: transparent; padding: 0.25rem; }
+  .user-btn:hover { background: #f3f4f6; }
+}

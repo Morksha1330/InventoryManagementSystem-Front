@@ -1,49 +1,73 @@
+// src/app/core/services/user.service.ts
+
 import { Injectable } from '@angular/core';
-import { environment } from '../../../environments/environment.development';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { AddUserDto, User } from '../models/user.interface';
+import { environment } from '../../../environments/environment.development';
+import {
+  AddUserDto,
+  PagedUsersResponse,
+  User,
+  UserFilterDto,
+} from '../models/user.interface';
+import { HttpResponseData } from '../models/http-response.interface';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UserService {
-private readonly apiUrl = environment.APIurl
-    private baseUrl = environment.APIurl + '/Auth';
-    private homeUrl = environment.APIurl + '/Home';
+  private readonly apiUrl = environment.APIurl;
+  private baseUrl = environment.APIurl + '/Auth';
+  private homeUrl = environment.APIurl + '/Home';
+  private userUrl = environment.APIurl + '/User';
 
+  constructor(private http: HttpClient) {}
 
-  constructor(private http: HttpClient) { }
+  /** Get paginated users with filters */
+  getPagedUsers(filter: UserFilterDto): Observable<PagedUsersResponse> {
+    let params = new HttpParams()
+      .set('pageNumber', filter.pageNumber.toString())
+      .set('pageSize', filter.pageSize.toString());
 
-  // Add new User
-  // addUser(UserData: AddUserDto): Observable<User> {
-  //   return this.http.post<User>(this.apiUrl, UserData);
-  // }
+    if (filter.searchTerm) params = params.set('searchTerm', filter.searchTerm);
+    if (filter.roleId != null) params = params.set('roleId', filter.roleId.toString());
+    if (filter.active != null) params = params.set('active', filter.active.toString());
+    if (filter.sortBy) params = params.set('sortBy', filter.sortBy);
+    if (filter.sortOrder) params = params.set('sortOrder', filter.sortOrder);
 
-  addUser(UserData: AddUserDto): Observable<User> {
-    console.log('Adding user with data:', UserData);
-    console.log('API URL:', `${this.baseUrl}/register`);
-    return this.http.post<User>(`${this.baseUrl}/register`, UserData);
+    return this.http.get<PagedUsersResponse>(`${this.userUrl}/paged`, { params });
   }
 
-  // Get all Users (optional)
+  /** Get single user by ID */
+  getUserById(id: number): Observable<HttpResponseData<User>> {
+    return this.http.get<HttpResponseData<User>>(`${this.userUrl}/${id}`);
+  }
+
+  /** Register / create a new user */
+  addUser(userData: AddUserDto): Observable<HttpResponseData<User>> {
+    console.log('Adding user with data:', userData);
+    return this.http.post<HttpResponseData<User>>(`${this.baseUrl}/register`, userData);
+  }
+
+  /** Update existing user */
+  updateUser(id: number, userData: AddUserDto): Observable<HttpResponseData<User>> {
+    console.log('Updating user with ID:', id, 'Data:', userData);
+    return this.http.put<HttpResponseData<User>>(`${this.userUrl}/${id}`, userData);
+  }
+
+  /** Delete user */
+  deleteUser(id: number): Observable<HttpResponseData<void>> {
+    return this.http.delete<HttpResponseData<void>>(`${this.userUrl}/${id}`);
+  }
+
+  /** Toggle active / inactive */
+  toggleUserStatus(id: number): Observable<HttpResponseData<User>> {
+    return this.http.patch<HttpResponseData<User>>(`${this.userUrl}/${id}/toggle-status`, {});
+  }
+
+  // ── legacy helpers kept for backward-compat ──────────────────────────────
+
   getUsers(): Observable<User[]> {
-    // return this.http.get<User[]>(this.apiUrl);
     return this.http.get<User[]>(`${this.homeUrl}/Users`);
-  }
-
-  // Get User by id (optional)
-  getUserById(id: number): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/${id}`);
-  }
-
-  // Update User (optional)
-  updateUser(id: number, UserData: AddUserDto): Observable<User> {
-    return this.http.put<User>(`${this.homeUrl}/${UserData.id}`, UserData);
-  }
-
-  // Delete User (optional)
-  deleteUser(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }
