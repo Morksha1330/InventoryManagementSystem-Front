@@ -286,6 +286,7 @@
 
 :host ::ng-deep .edit-user-dialog .p-dialog-content {
   padding: 1.5rem;
+  overflow-y: visible;
 }
 
 :host ::ng-deep .edit-user-dialog .p-dialog-footer {
@@ -298,6 +299,29 @@
   flex-direction: column;
   gap: 1.15rem;
 }
+
+.add-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+/* ── Edit dialog ────────────────────────────────────────────────────────── */
+:host ::ng-deep .add-user-dialog .p-dialog-header {
+  border-bottom: 1px solid var(--surface-border, #e2e8f0);
+  padding: 1.25rem 1.5rem 1rem;
+}
+
+:host ::ng-deep .add-user-dialog .p-dialog-content {
+  padding: 1.5rem;
+  overflow-y: visible;
+}
+
+:host ::ng-deep .add-user-dialog .p-dialog-footer {
+  border-top: 1px solid var(--surface-border, #e2e8f0);
+  padding: 1rem 1.5rem;
+}
+
 
 .form-row {
   display: grid;

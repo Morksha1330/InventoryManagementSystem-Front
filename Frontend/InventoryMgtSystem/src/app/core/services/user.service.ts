@@ -45,6 +45,7 @@ export class UserService {
 
   /** Register / create a new user */
   addUser(userData: AddUserDto): Observable<HttpResponseData<User>> {
+    console.log('Adding user with data:', userData);
     return this.http.post<HttpResponseData<User>>(`${this.baseUrl}/register`, userData);
   }
 

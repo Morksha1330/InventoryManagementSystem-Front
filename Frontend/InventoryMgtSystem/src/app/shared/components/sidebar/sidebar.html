@@ -15,7 +15,7 @@
           <i class="pi pi-bars"></i>
         </button>
         <div class="logo-text" *ngIf="!isLeftSidebarCollapsed()">
-          <span class="brand-name">Title Goes Here</span>
+          <span class="brand-name">IMS</span>
         </div>
       </div>
     </div>
@@ -57,7 +57,7 @@
             </span>
             <i 
               *ngIf="!isLeftSidebarCollapsed()" 
-              class="chevron-icon" 
+              class="pi pi-chevron-down chevron-icon" 
               [class.rotated]="expandedMenus[item.label]"
             ></i>
           </div>
@@ -100,13 +100,13 @@
       </div>
 
       <div class="powered-by" *ngIf="!isLeftSidebarCollapsed()">
-        <span>Powered by Padda</span>
+        <span>Powered by Myself</span>
         <span class="copyright">© 2026</span>
       </div>
       <div
         class="powered-by-collapsed"
         *ngIf="isLeftSidebarCollapsed()"
-        [matTooltip]="'Powered by RETAIL IT © 2026'"
+        [matTooltip]="'Powered by Myself © 2026'"
         matTooltipPosition="right"
       >
         <span>RI</span>

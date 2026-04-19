@@ -4,7 +4,7 @@ export interface User {
   id: number;
   name: string;
   email: string;
-  phone: string;
+  phone?: string;
   username:string;
   active: string;
   roleId?: number;
@@ -17,10 +17,10 @@ export interface AddUserDto {
   name: string;
   username: string;
   email: string;
-  epf_No?: string;
+  epF_No?: string;
   roleId?: number;
   active?: boolean;
-  password?: string;
+  phone?: string;
 }
 
 export interface RoleOption {

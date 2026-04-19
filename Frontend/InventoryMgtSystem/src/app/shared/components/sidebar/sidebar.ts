@@ -67,9 +67,9 @@ export class Sidebar {
         roles: ['Admin'],
         children: [
           { routeLink: 'user-list', icon: 'pi pi-users', label: 'Users', roles: ['Admin'] },
-          { routeLink: 'edit-users', icon: 'pi pi-pencil', label: 'Edit Users', roles: ['Admin'] },
+          // { routeLink: 'edit-users', icon: 'pi pi-pencil', label: 'Edit Users', roles: ['Admin'] },
           { routeLink: 'profile', icon: 'pi pi-user', label: 'My Profile', roles: ['Viewer', 'Admin', 'Manager', 'Operator'] },
-          { routeLink: 'createuser', icon: 'pi pi-plus', label: 'Register Users', roles: ['Admin'] }
+          //{ routeLink: 'createuser', icon: 'pi pi-plus', label: 'Register Users', roles: ['Admin'] }
         ]
       },
       {

@@ -4,6 +4,7 @@
   --sidebar-expanded: 16.875rem;
   --sidebar-collapsed: 4.375rem;
 }
+
 .sidebar-container {
   width: auto;
   height: 100vh;
@@ -26,7 +27,6 @@
   background: rgba(255, 255, 255, 0.12);
   color: #fff;
   cursor: pointer;
-
   display: flex;
   align-items: center;
   justify-content: center;
@@ -72,6 +72,7 @@
   }
 }
 
+/* ── Core Sidenav ── */
 .app-sidenav {
   background: linear-gradient(180deg, #0d9488 0%, #0f766e 100%);
   color: white;
@@ -81,12 +82,10 @@
   flex-direction: column;
   overflow: visible;
   border-right: none;
-    border-radius: 0 20px 20px 0;  /* Curved on right side only */
-
+  border-radius: 0 20px 20px 0;
 
   &.expanded {
     width: 16.8625rem;
-    /* width: 270px; */
   }
 
   &.collapsed {
@@ -125,7 +124,7 @@
   }
 }
 
-/* Logo Section */
+/* ── Logo Section ── */
 .logo-section {
   padding: clamp(20px, 2.5vw, 24px) 16px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
@@ -213,14 +212,13 @@
   }
 }
 
-/* Navigation List */
+/* ── Navigation List ── */
 .nav-list {
   flex: 1;
   overflow-y: auto;
   overflow-x: hidden;
   padding: 0 8px;
 
-  /* Custom scrollbar */
   &::-webkit-scrollbar {
     width: 6px;
   }
@@ -240,12 +238,13 @@
   }
 }
 
+/* ── Nav Item (top-level, no children) ── */
 .nav-item {
   display: flex !important;
   align-items: center !important;
   gap: 12px;
   padding: clamp(10px, 1.2vw, 12px) 16px !important;
-  margin: 4px 0;
+  margin: 2px 0;
   border-radius: 8px;
   color: rgba(255, 255, 255, 0.9) !important;
   text-decoration: none;
@@ -269,18 +268,20 @@
     }
   }
 
+  /* Active: parent-level — strong, prominent */
   &.active {
-    background: rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.22) !important;
     backdrop-filter: blur(10px);
     font-weight: 600;
     color: white !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 
     .nav-icon {
       color: white !important;
       transform: scale(1.05);
     }
 
+    /* Bold left bar for top-level active */
     &::before {
       content: "";
       position: absolute;
@@ -288,17 +289,23 @@
       top: 50%;
       transform: translateY(-50%);
       width: 4px;
-      height: 24px;
+      height: 26px;
       background: white;
       border-radius: 0 4px 4px 0;
+    }
+
+    &:focus,
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
     }
   }
 
   .nav-icon {
-    font-size: clamp(18px, 2vw, 22px);
-    width: 24px;
-    min-width: 24px;
-    height: 24px;
+    font-size: clamp(16px, 1.8vw, 18px);
+    width: 20px;
+    min-width: 20px;
+    height: 20px;
     flex-shrink: 0;
     transition: transform 0.2s ease;
     display: flex;
@@ -319,7 +326,239 @@
   }
 }
 
-/* User Section */
+/* ── Parent item WITH children ── */
+.nav-item-with-children {
+  width: 100%;
+  margin: 2px 0;
+}
+
+.parent-item {
+  cursor: pointer;
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px;
+  padding: clamp(10px, 1.2vw, 12px) 16px !important;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-size: clamp(12px, 1.2vw, 14px);
+  font-weight: 500;
+  transition: all 0.2s ease;
+  position: relative;
+  min-height: 44px;
+  white-space: nowrap;
+
+  /* Badge-style pill on the right to signal "has children" */
+  &::after {
+    content: "";
+    position: absolute;
+    right: 38px; /* sits just left of chevron */
+    top: 50%;
+    transform: translateY(-50%);
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.35);
+    transition: background 0.2s ease;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(4px);
+    color: white !important;
+
+    &::after {
+      background: rgba(255, 255, 255, 0.65);
+    }
+
+    .nav-icon {
+      transform: scale(1.1);
+    }
+  }
+
+  /* When its submenu is open, keep a gentle tint */
+  &.expanded {
+    background: rgba(255, 255, 255, 0.07);
+    color: white !important;
+
+    &::after {
+      background: rgba(255, 255, 255, 0.6);
+    }
+  }
+
+  .nav-icon {
+    font-size: clamp(16px, 1.8vw, 18px);
+    width: 20px;
+    min-width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.9) !important;
+  }
+
+  .nav-label {
+    flex: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    color: white !important;
+    transition:
+      opacity 0.3s ease,
+      width 0.3s ease;
+  }
+}
+
+/* ── Chevron icon ── */
+.chevron-icon {
+  font-size: 11px !important;
+  width: auto !important;
+  min-width: auto !important;
+  height: auto !important;
+  margin-left: auto;
+  flex-shrink: 0;
+  opacity: 0.7;
+  transition: transform 0.25s ease, opacity 0.2s ease;
+  color: white !important;
+}
+
+.chevron-icon.rotated {
+  transform: rotate(180deg);
+  opacity: 1;
+}
+
+/* ── Submenu container ── */
+.submenu {
+  margin: 4px 6px 6px 10px;
+  padding: 6px 0;
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 10px;
+  overflow: hidden;
+  border-left: 2px solid rgba(255, 255, 255, 0.18);
+
+  animation: submenuOpen 0.22s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes submenuOpen {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Submenu items ── */
+.submenu-item {
+  display: flex !important;
+  align-items: center;
+  gap: 12px;
+  /* Generous padding: top/bottom breathing room, left space away from the border */
+  padding: 10px 16px 10px 20px !important;
+  margin: 3px 8px !important;
+  border-radius: 20px; /* pill shape — no more square corners */
+  color: rgba(255, 255, 255, 0.72);
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease, color 0.2s ease;
+  position: relative;
+  font-size: 13px;
+  font-weight: 400;
+  text-decoration: none;
+
+  /* No ::before tick — pill shape already gives clear hierarchy */
+  &::before {
+    display: none;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.12);
+    transform: translateX(3px);
+    color: white;
+
+    .submenu-icon {
+      opacity: 1;
+      transform: scale(1.08);
+    }
+
+    .submenu-label {
+      color: white;
+    }
+  }
+
+  /* Active — filled pill, clearly selected but softer than parent */
+  &.active {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    font-weight: 600;
+    /* Inner glow to lift it off the background */
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2),
+                0 2px 6px rgba(0, 0, 0, 0.12);
+
+    .submenu-icon {
+      opacity: 1;
+    }
+
+    .submenu-label {
+      color: white;
+    }
+
+    /* Subtle left accent line inside the pill */
+    &::after {
+      content: "";
+      position: absolute;
+      left: 9px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 3px;
+      height: 16px;
+      background: rgba(255, 255, 255, 0.85);
+      border-radius: 2px;
+    }
+  }
+}
+
+.submenu-icon {
+  margin-left: 10px; 
+  font-size: 14px !important;
+  width: 18px !important;
+  min-width: 18px !important;
+  height: 18px !important;
+  opacity: 0.72;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.9) !important;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.submenu-label {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.78);
+  transition: color 0.2s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.01em;
+}
+
+/* Collapsed state */
+.collapsed .parent-item {
+  justify-content: center;
+
+  &::after {
+    display: none;
+  }
+}
+
+.collapsed .submenu {
+  display: none;
+}
+
+/* ── User Section ── */
 .user-section {
   margin-top: auto;
   flex-shrink: 0;
@@ -328,8 +567,6 @@
   left: 0;
   right: 0;
   padding: 0 12px;
-  /* left: 0; */
-  /* padding: 16px; */
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 
   .user-separator {
@@ -427,7 +664,7 @@
   }
 }
 
-/* Main Content */
+/* ── Main Content ── */
 .main-content {
   background: #f9fafb;
   height: 100vh;
@@ -435,9 +672,7 @@
   overflow-x: hidden;
 }
 
-/* ========================================
-   RESPONSIVE DESIGN
-   ======================================== */
+/* ── Responsive ── */
 
 /* Desktop (1024px+) */
 @media (min-width: 1024px) {
@@ -665,7 +900,7 @@
   }
 }
 
-/* Material Design Overrides */
+/* ── Material Design Overrides ── */
 ::ng-deep {
   .mat-mdc-list-item {
     &.nav-item {
@@ -699,7 +934,6 @@
     background-color: transparent;
   }
 
-  /* Mobile-specific Material overrides */
   @media (max-width: 767px) {
     .mat-drawer-backdrop {
       display: block !important;
@@ -707,7 +941,7 @@
   }
 }
 
-/* Animation classes */
+/* ── Animations ── */
 @keyframes slideIn {
   from {
     opacity: 0;
@@ -723,7 +957,7 @@
   animation: slideIn 0.3s ease;
 }
 
-/* Accessibility improvements */
+/* ── Accessibility ── */
 @media (prefers-reduced-motion: reduce) {
   .app-sidenav,
   .nav-item,
@@ -732,13 +966,15 @@
   .logo-text,
   .nav-label,
   .user-details,
-  .nav-icon {
+  .nav-icon,
+  .submenu,
+  .chevron-icon {
     transition: none !important;
     animation: none !important;
   }
 }
 
-/* High contrast mode support */
+/* ── High Contrast ── */
 @media (prefers-contrast: high) {
   .app-sidenav {
     border-right: 2px solid white;
@@ -757,7 +993,7 @@
   }
 }
 
-/* Print styles */
+/* ── Print ── */
 @media print {
   .app-sidenav {
     display: none;
@@ -768,6 +1004,7 @@
   }
 }
 
+/* ── MDC/Material global row fix ── */
 ::ng-deep .mat-mdc-list-item,
 ::ng-deep .mdc-list-item__content,
 ::ng-deep .mat-mdc-list-item-unscoped-content {
@@ -777,49 +1014,48 @@
   gap: 12px;
 }
 
-.nav-item .nav-icon {
-  font-size: 18px;
-  width: 20px;
-  min-width: 20px;
-  height: 20px;
+/* ── Kill MDC state layers completely ── */
+::ng-deep .mat-mdc-list-item,
+::ng-deep .mdc-list-item {
+  --mdc-list-list-item-focus-state-layer-opacity: 0 !important;
+  --mdc-list-list-item-hover-state-layer-opacity: 0 !important;
+  --mdc-list-list-item-selected-state-layer-opacity: 0 !important;
 }
 
-/* In your CSS file, add these styles */
+::ng-deep .mdc-list-item::before,
+::ng-deep .mdc-list-item::after {
+  opacity: 0 !important;
+  background: transparent !important;
+}
+
+::ng-deep .cdk-focused,
+::ng-deep .cdk-program-focused {
+  outline: none !important;
+}
+
+::ng-deep .nav-item.active {
+  background: rgba(255, 255, 255, 0.22) !important;
+}
 
 ::ng-deep .nav-item.mat-mdc-list-item {
   --mdc-list-list-item-focus-state-layer-color: transparent !important;
   --mdc-list-list-item-hover-state-layer-color: transparent !important;
   --mdc-list-list-item-selected-container-color: transparent !important;
 
-  /* Remove focus outline */
   &:focus {
     outline: none !important;
   }
 
-  /* Remove ripple effect */
   .mat-mdc-list-item-ripple {
-    display: none !important;
-  }
-
-  /* Remove the state layers */
-  &::before {
     display: none !important;
   }
 }
 
-/* If using Angular Material 15+ with MDC */
 ::ng-deep .mdc-list-item {
   --mdc-list-list-item-focus-state-layer-color: transparent;
   --mdc-list-list-item-hover-state-layer-color: transparent;
 }
 
-/* Specifically target the active state */
-::ng-deep .nav-item.active {
-  --mdc-list-list-item-focus-state-layer-color: transparent !important;
-  --mdc-list-list-item-hover-state-layer-color: transparent !important;
-}
-
-/* Remove Material's default states */
 ::ng-deep .mat-mdc-list-item-interactive {
   &:not(:disabled) {
     &:focus::before {
@@ -832,145 +1068,9 @@
   }
 }
 
-/* Ensure your custom active state overrides Material's */
-.nav-item {
-  &.active {
-    position: relative;
-    z-index: 1;
-
-    /* Override any Material background layers */
-    &::after {
-      display: none !important;
-    }
-
-    /* Remove any focus indicator */
-    &:focus,
-    &:focus-visible {
-      outline: none;
-      box-shadow: none;
-    }
-  }
-}
-
-/* Remove any remaining focus visuals */
 .nav-item:focus-visible {
   outline: none;
   box-shadow: none;
-}
-
-/* 🔥 Kill MDC focus / selected overlay completely */
-::ng-deep .mat-mdc-list-item,
-::ng-deep .mdc-list-item {
-  --mdc-list-list-item-focus-state-layer-opacity: 0 !important;
-  --mdc-list-list-item-hover-state-layer-opacity: 0 !important;
-  --mdc-list-list-item-selected-state-layer-opacity: 0 !important;
-}
-
-/* Remove pseudo-element overlays */
-::ng-deep .mdc-list-item::before,
-::ng-deep .mdc-list-item::after {
-  opacity: 0 !important;
-  background: transparent !important;
-}
-
-/* Remove CDK focus styles */
-::ng-deep .cdk-focused,
-::ng-deep .cdk-program-focused {
-  outline: none !important;
-}
-
-/* Ensure active state is ONLY your custom one */
-::ng-deep .nav-item.active {
-  background: rgba(255, 255, 255, 0.2) !important;
-}
-
-/*children of .nav-item should not have any MDC state layers */
-/* Add these styles to your existing sidebar.css */
-.nav-item-with-children {
-  width: 100%;
-}
-
-.parent-item {
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: relative;
-}
-
-.chevron-icon {
-  transition: transform 0.3s ease;
-  margin-left: auto;
-}
-
-.chevron-icon.rotated {
-  transform: rotate(180deg);
-}
-
-.submenu {
-  padding-left: 8px;
-  background-color: rgba(0, 0, 0, 0.05);
-}
-
-.submenu-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 16px !important;
-    margin-left: 8px; /* subtle hierarchy instead of huge gap */
-  border-radius: 8px;
-  color: rgba(255, 255, 255, 0.85);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.submenu-label {
-  font-size: 13px;
-}
-
-/* For collapsed state */
-.collapsed .parent-item {
-  justify-content: center;
-}
-
-.collapsed .submenu {
-  display: none;
-}
-
-/* Hover effects */
-/* .parent-item:hover {
-  background-color: rgba(0, 0, 0, 0.04);
-}
-
-.active {
-  background-color: rgba(25, 118, 210, 0.12);
-  color: #1976d2;
-} */
-
-/* Hover effect (same feel as main nav) */
-.submenu-item:hover {
-    background: rgba(255, 255, 255, 0.1);
-    transform: translateX(4px);
-  color: #ffffff;
-}
-
-/* Active state (match your nav-item.active) */
-.submenu-item.active {
-  background: rgba(255, 255, 255, 0.2);
-  color: #ffffff;
-  font-weight: 600;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-
-/* Optional: left indicator like parent menu */
-.submenu-item.active::before {
-  content: "";
-  position: absolute;
-  left: 24px;
-  width: 3px;
-  height: 18px;
-  background: white;
-  border-radius: 2px;
 }
 
 ::ng-deep .submenu .mat-mdc-list-item {

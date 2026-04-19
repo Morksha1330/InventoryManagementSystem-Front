@@ -133,7 +133,7 @@ export const routes: Routes = [
         data: { 
           title: 'Customers',
           roles: ['Viewer', 'Admin', 'Manager', 'Operator'],
-          showHeader: false 
+          showHeader: true 
         }
       },
     //   {
