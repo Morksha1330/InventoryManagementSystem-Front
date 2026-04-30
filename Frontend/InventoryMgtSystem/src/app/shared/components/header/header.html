@@ -1,0 +1,79 @@
+<header class="header">
+  <div class="header-inner">
+
+    <!-- Left: breadcrumb / page title -->
+    <div class="header-left">
+      <button
+        class="menu-toggle"
+        (click)="toggleSidebar.emit(!isLeftSidebarCollapsed())"
+        aria-label="Toggle sidebar"
+      >
+        <i class="pi pi-bars"></i>
+      </button>
+      <div class="breadcrumb">
+        <h5 class="breadcrumb-title">{{ pageTitle }}</h5>
+      </div>
+    </div>
+
+    <!-- Right: actions -->
+    <div class="header-right">
+
+      <!-- Notification bell -->
+      <button class="icon-btn" aria-label="Notifications">
+        <i class="pi pi-bell"></i>
+        <!-- Uncomment when you have notification count -->
+        <!-- <span class="notif-dot"></span> -->
+      </button>
+
+      <!-- User dropdown -->
+      <div class="user-dropdown" [class.open]="showDropdown">
+        <button class="user-btn" (click)="toggleDropdown()" aria-expanded="showDropdown">
+          <div class="user-avatar" *ngIf="currentUser$ | async as user">
+            <img
+              [alt]="user.name"
+              class="avatar-img"
+              (error)="onImageError($event)"
+            />
+            <ng-template #initialsAvatar>
+              <span class="avatar-initials">{{ getInitials(user.name) }}</span>
+            </ng-template>
+          </div>
+          <div class="user-meta" *ngIf="currentUser$ | async as user">
+            <span class="user-name">{{ user.name }}</span>
+            <span class="user-role">{{ user.role }}</span>
+          </div>
+          <i class="pi pi-chevron-down chevron" [class.rotated]="showDropdown"></i>
+        </button>
+
+        <div class="dropdown-menu" *ngIf="showDropdown">
+          <div class="dropdown-header" *ngIf="currentUser$ | async as user">
+            <div class="dh-avatar">{{ getInitials(user.name) }}</div>
+            <div class="dh-info">
+              <strong>{{ user.name }}</strong>
+              <small>{{ user.email }}</small>
+              <span class="role-badge">{{ user.role }}</span>
+            </div>
+          </div>
+
+          <div class="menu-divider"></div>
+
+          <a routerLink="./profile" class="menu-item" (click)="closeDropdown()">
+            <i class="pi pi-user"></i>
+            Profile Settings
+          </a>
+
+          <div class="menu-divider"></div>
+
+          <button class="menu-item menu-item-danger" (click)="logout()">
+            <i class="pi pi-sign-out"></i>
+            Sign Out
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Backdrop -->
+  <div class="dropdown-backdrop" *ngIf="showDropdown" (click)="closeDropdown()"></div>
+</header>

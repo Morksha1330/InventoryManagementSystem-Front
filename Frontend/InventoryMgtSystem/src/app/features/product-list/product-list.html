@@ -1,1 +1,383 @@
-<p>product-list works!</p>
+<!-- src/app/features/products/product-list/product-list.component.html -->
+
+<p-toast position="top-right" />
+<p-confirmDialog />
+
+<div class="product-list-page">
+
+  <!-- ── Page Header ───────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div class="header-left">
+      <div class="header-icon">
+        <i class="pi pi-box"></i>
+      </div>
+      <div>
+        <h5 class="page-title">Product Management</h5>
+        <p class="page-subtitle">
+          {{ totalRecords() }} product{{ totalRecords() !== 1 ? 's' : '' }} registered
+        </p>
+      </div>
+    </div>
+    <button pButton type="button" label="Add Product" icon="pi pi-plus" class="p-button-primary"
+      (click)="openCreate()"></button>
+  </div>
+
+  <!-- ── Filter Bar ────────────────────────────────────────────────────── -->
+  <div class="filter-bar">
+    <!-- Search -->
+    <p-iconfield class="search-field">
+      <p-inputicon>
+        <i class="pi pi-search"></i>
+      </p-inputicon>
+      <input pInputText type="text" placeholder="Search by name, SKU, category…"
+        (input)="onSearchInput($event)" class="search-input" />
+    </p-iconfield>
+
+    <!-- Category Filter -->
+    <p-select [options]="categoryOptions" optionLabel="label" optionValue="value"
+      placeholder="All Categories" [ngModel]="selectedCategoryFilter()"
+      (ngModelChange)="onCategoryFilterChange($event)" class="filter-select" />
+
+    <!-- Status Filter -->
+    <p-select [options]="statusOptions" optionLabel="label" optionValue="value"
+      placeholder="All Status" [ngModel]="selectedStatusFilter()"
+      (ngModelChange)="onStatusFilterChange($event)" class="filter-select" />
+
+    <!-- Page Size -->
+    <p-select [options]="pageSizeOptions" optionLabel="label" optionValue="value"
+      [ngModel]="pageSize()" (ngModelChange)="onPageSizeChange($event)"
+      class="filter-select filter-select--sm" />
+
+    <!-- Clear Filters -->
+    @if (hasActiveFilters) {
+    <button pButton type="button" icon="pi pi-filter-slash" label="Clear"
+      class="p-button-outlined p-button-secondary clear-btn" (click)="clearFilters()"
+      pTooltip="Clear all filters"></button>
+    }
+  </div>
+
+  <!-- ── Table ─────────────────────────────────────────────────────────── -->
+  <div class="table-wrapper">
+    <p-table #dt [value]="products()" [rows]="pageSize()" [totalRecords]="totalRecords()"
+      [loading]="loading()" [paginator]="true" [lazy]="true"
+      [rowsPerPageOptions]="[10, 20, 50]" [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
+      [sortMode]="'single'" (onPage)="onPage($event)" (onSort)="onSort($event)"
+      styleClass="p-datatable-gridlines product-table"
+      [tableStyle]="{ 'min-width': '960px' }" responsiveLayout="scroll">
+
+      <!-- ── Columns ── -->
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="id" style="width: 60px">#<p-sortIcon field="id" /></th>
+          <th pSortableColumn="sku">SKU<p-sortIcon field="sku" /></th>
+          <th pSortableColumn="productName">Product Name<p-sortIcon field="productName" /></th>
+          <th pSortableColumn="categoryName">Category<p-sortIcon field="categoryName" /></th>
+          <th pSortableColumn="totalQuantity" style="width: 120px; text-align: right">
+            Qty<p-sortIcon field="totalQuantity" />
+          </th>
+          <th pSortableColumn="unitPrice" style="width: 130px; text-align: right">
+            Unit Price<p-sortIcon field="unitPrice" />
+          </th>
+          <th pSortableColumn="active" style="width: 110px">Status<p-sortIcon field="active" /></th>
+          <th pSortableColumn="createdDate" style="width: 130px">
+            Created<p-sortIcon field="createdDate" />
+          </th>
+          <th style="width: 120px; text-align: center">Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="loadingbody">
+        @for (row of skeletonRows; track $index) {
+        <tr>
+          @for (col of [1,2,3,4,5,6,7,8,9]; track col) {
+          <td><p-skeleton height="1.75rem" borderRadius="6px" /></td>
+          }
+        </tr>
+        }
+      </ng-template>
+
+      <ng-template pTemplate="body" let-product>
+        <tr class="product-row">
+          <td class="text-muted id-cell">{{ product.id }}</td>
+
+          <td>
+            <span class="sku-badge">{{ product.sku }}</span>
+          </td>
+
+          <td>
+            <div class="product-name-cell">
+              <div class="product-icon" [style.background]="iconColor(product.productName)">
+                <i class="pi pi-box"></i>
+              </div>
+              <span class="product-name">{{ product.productName }}</span>
+            </div>
+          </td>
+
+          <td>
+            <span class="category-badge">{{ product.categoryName || '—' }}</span>
+          </td>
+
+          <td class="qty-cell" [ngClass]="stockClass(product.totalQuantity)">
+            <span class="qty-value">{{ product.totalQuantity }}</span>
+            @if (product.totalQuantity === 0) {
+            <span class="qty-label">Out</span>
+            } @else if (product.totalQuantity <= 10) {
+            <span class="qty-label">Low</span>
+            }
+          </td>
+
+          <td class="price-cell">
+            {{ product.unitPrice | currency:'LKR':'symbol':'1.2-2' }}
+          </td>
+
+          <td>
+            <p-tag [value]="product.active ? 'Active' : 'Inactive'"
+              [severity]="product.active ? 'success' : 'danger'" [rounded]="true" />
+          </td>
+
+          <td class="date-cell text-muted">
+            {{ product.createdDate ? (product.createdDate | date:'dd MMM yyyy') : '—' }}
+          </td>
+
+          <!-- Actions -->
+          <td class="actions-cell">
+            <div class="action-buttons">
+              <button pButton type="button" icon="pi pi-pencil"
+                class="p-button-rounded p-button-text p-button-info action-btn"
+                pTooltip="Edit product" tooltipPosition="top"
+                (click)="openEdit(product)"></button>
+
+              <button pButton type="button"
+                [icon]="product.active ? 'pi pi-ban' : 'pi pi-check-circle'"
+                class="p-button-rounded p-button-text action-btn"
+                [ngClass]="product.active ? 'p-button-warning' : 'p-button-success'"
+                [pTooltip]="product.active ? 'Deactivate' : 'Activate'" tooltipPosition="top"
+                (click)="toggleStatus(product)"></button>
+
+              <button pButton type="button" icon="pi pi-trash"
+                class="p-button-rounded p-button-text p-button-danger action-btn"
+                pTooltip="Delete product" tooltipPosition="top"
+                (click)="confirmDelete(product)"></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <!-- ── Empty state ── -->
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="9">
+            <div class="empty-state">
+              <div class="empty-icon">
+                <i class="pi pi-inbox"></i>
+              </div>
+              <h3>No products found</h3>
+              <p>
+                @if (hasActiveFilters) {
+                Try adjusting your search or filter criteria.
+                <button pButton type="button" label="Clear Filters" class="p-button-link"
+                  (click)="clearFilters()"></button>
+                } @else {
+                No products have been registered yet.
+                }
+              </p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+    </p-table>
+  </div>
+</div>
+
+<!-- ── Edit Dialog ────────────────────────────────────────────────────────── -->
+<p-dialog [visible]="editDialogVisible()" (visibleChange)="editDialogVisible.set($event)"
+  [modal]="true" [closable]="true" [draggable]="false" [resizable]="false"
+  [style]="{ width: '580px' }" styleClass="edit-product-dialog"
+  [header]="'Edit Product — ' + (selectedProduct()?.productName ?? '')"
+  (onHide)="closeDialog()">
+
+  <form [formGroup]="editForm" class="edit-form" novalidate>
+
+    <!-- Row 1: SKU + Product Name -->
+    <div class="form-row">
+      <div class="form-field">
+        <label for="edit-sku">SKU <span class="required">*</span></label>
+        <input id="edit-sku" pInputText formControlName="sku" placeholder="e.g. PRD-0001"
+          [class.ng-invalid]="fieldError('sku', 'edit')"
+          [class.ng-dirty]="fieldError('sku', 'edit')" />
+        @if (fieldError('sku', 'edit')) {
+        <small class="field-error">{{ fieldErrorMsg('sku', 'edit') }}</small>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="edit-name">Product Name <span class="required">*</span></label>
+        <input id="edit-name" pInputText formControlName="productName"
+          placeholder="Enter product name"
+          [class.ng-invalid]="fieldError('productName', 'edit')"
+          [class.ng-dirty]="fieldError('productName', 'edit')" />
+        @if (fieldError('productName', 'edit')) {
+        <small class="field-error">{{ fieldErrorMsg('productName', 'edit') }}</small>
+        }
+      </div>
+    </div>
+
+    <!-- Row 2: Category + Unit Price -->
+    <div class="form-row">
+      <div class="form-field">
+        <label for="edit-category">Category <span class="required">*</span></label>
+        <p-select inputId="edit-category" [options]="categoryFormOptions" optionLabel="label"
+          optionValue="value" formControlName="categoryId" placeholder="Select category"
+          [class.ng-invalid]="fieldError('categoryId', 'edit')"
+          [class.ng-dirty]="fieldError('categoryId', 'edit')" styleClass="w-full" />
+        @if (fieldError('categoryId', 'edit')) {
+        <small class="field-error">{{ fieldErrorMsg('categoryId', 'edit') }}</small>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="edit-price">Unit Price <span class="required">*</span></label>
+        <p-inputnumber inputId="edit-price" formControlName="unitPrice"
+          placeholder="0.00" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2"
+          [class.ng-invalid]="fieldError('unitPrice', 'edit')"
+          [class.ng-dirty]="fieldError('unitPrice', 'edit')" styleClass="w-full" />
+        @if (fieldError('unitPrice', 'edit')) {
+        <small class="field-error">{{ fieldErrorMsg('unitPrice', 'edit') }}</small>
+        }
+      </div>
+    </div>
+
+    <!-- Row 3: Quantity (read-only display) -->
+    <div class="form-field">
+      <label>Current Stock Quantity</label>
+      <div class="qty-display">
+        <i class="pi pi-warehouse"></i>
+        <span>{{ selectedProduct()?.totalQuantity ?? 0 }} units in stock</span>
+        <p-tag *ngIf="(selectedProduct()?.totalQuantity ?? 0) === 0" value="Out of Stock"
+          severity="danger" [rounded]="true" />
+        <p-tag
+          *ngIf="(selectedProduct()?.totalQuantity ?? 0) > 0 && (selectedProduct()?.totalQuantity ?? 0) <= 10"
+          value="Low Stock" severity="warn" [rounded]="true" />
+      </div>
+    </div>
+
+    <!-- Row 4: Active toggle -->
+    <div class="form-field toggle-field">
+      <label>Product Status</label>
+      <div class="toggle-row">
+        <p-toggleswitch formControlName="active" />
+        <span class="toggle-label">
+          {{ editForm.get('active')?.value ? 'Active — visible in system' : 'Inactive — hidden from operations' }}
+        </span>
+      </div>
+    </div>
+
+  </form>
+
+  <ng-template pTemplate="footer">
+    <div class="dialog-footer">
+      <button pButton type="button" label="Cancel" icon="pi pi-times"
+        class="p-button-outlined p-button-secondary" (click)="closeDialog()"
+        [disabled]="saving()"></button>
+      <button pButton type="button" label="Save Changes" icon="pi pi-check"
+        class="p-button-primary" (click)="saveProduct()" [loading]="saving()"></button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<!-- ── Add Dialog ─────────────────────────────────────────────────────────── -->
+<p-dialog [visible]="addDialogVisible()" (visibleChange)="addDialogVisible.set($event)"
+  [modal]="true" [closable]="true" [draggable]="false" [resizable]="false"
+  [style]="{ width: '580px' }" styleClass="add-product-dialog" header="Add New Product"
+  (onHide)="closeAddDialog()">
+
+  <form [formGroup]="addForm" class="add-form" novalidate>
+
+    <!-- Row 1: SKU + Product Name -->
+    <div class="form-row">
+      <div class="form-field">
+        <label for="add-sku">SKU <span class="required">*</span></label>
+        <input id="add-sku" pInputText formControlName="sku" placeholder="e.g. PRD-0001"
+          [class.ng-invalid]="fieldError('sku', 'add')"
+          [class.ng-dirty]="fieldError('sku', 'add')" />
+        @if (fieldError('sku', 'add')) {
+        <small class="field-error">{{ fieldErrorMsg('sku', 'add') }}</small>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="add-name">Product Name <span class="required">*</span></label>
+        <input id="add-name" pInputText formControlName="productName"
+          placeholder="Enter product name"
+          [class.ng-invalid]="fieldError('productName', 'add')"
+          [class.ng-dirty]="fieldError('productName', 'add')" />
+        @if (fieldError('productName', 'add')) {
+        <small class="field-error">{{ fieldErrorMsg('productName', 'add') }}</small>
+        }
+      </div>
+    </div>
+
+    <!-- Row 2: Category + Unit Price -->
+    <div class="form-row">
+      <div class="form-field">
+        <label for="add-category">Category <span class="required">*</span></label>
+        <p-select inputId="add-category" [options]="categoryFormOptions" optionLabel="label"
+          optionValue="value" formControlName="categoryId" placeholder="Select category"
+          [class.ng-invalid]="fieldError('categoryId', 'add')"
+          [class.ng-dirty]="fieldError('categoryId', 'add')" styleClass="w-full" />
+        @if (fieldError('categoryId', 'add')) {
+        <small class="field-error">{{ fieldErrorMsg('categoryId', 'add') }}</small>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="add-price">Unit Price <span class="required">*</span></label>
+        <p-inputnumber inputId="add-price" formControlName="unitPrice"
+          placeholder="0.00" mode="decimal" [minFractionDigits]="2" [maxFractionDigits]="2"
+          [class.ng-invalid]="fieldError('unitPrice', 'add')"
+          [class.ng-dirty]="fieldError('unitPrice', 'add')" styleClass="w-full" />
+        @if (fieldError('unitPrice', 'add')) {
+        <small class="field-error">{{ fieldErrorMsg('unitPrice', 'add') }}</small>
+        }
+      </div>
+    </div>
+
+    <!-- Row 3: Total Quantity + Status -->
+    <div class="form-row">
+      <div class="form-field">
+        <label for="add-qty">Initial Quantity <span class="required">*</span></label>
+        <p-inputnumber inputId="add-qty" formControlName="totalQuantity"
+          placeholder="0" [min]="0"
+          [class.ng-invalid]="fieldError('totalQuantity', 'add')"
+          [class.ng-dirty]="fieldError('totalQuantity', 'add')" styleClass="w-full" />
+        @if (fieldError('totalQuantity', 'add')) {
+        <small class="field-error">{{ fieldErrorMsg('totalQuantity', 'add') }}</small>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="add-status">Status <span class="required">*</span></label>
+        <p-select inputId="add-status" [options]="statusFormOptions" optionLabel="label"
+          optionValue="value" formControlName="active" placeholder="Select status"
+          [class.ng-invalid]="fieldError('active', 'add')"
+          [class.ng-dirty]="fieldError('active', 'add')" styleClass="w-full" />
+        @if (fieldError('active', 'add')) {
+        <small class="field-error">{{ fieldErrorMsg('active', 'add') }}</small>
+        }
+      </div>
+    </div>
+
+  </form>
+
+  <ng-template pTemplate="footer">
+    <div class="dialog-footer">
+      <button pButton type="button" label="Cancel" icon="pi pi-times"
+        class="p-button-outlined p-button-secondary" (click)="closeAddDialog()"
+        [disabled]="saving()"></button>
+      <button pButton type="button" label="Add Product" icon="pi pi-check"
+        class="p-button-primary" (click)="createProduct()" [loading]="saving()"></button>
+    </div>
+  </ng-template>
+</p-dialog>

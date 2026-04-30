@@ -1,0 +1,367 @@
+/* src/app/features/customers/customer-list/customer-list.component.css */
+
+/* ── Page shell ─────────────────────────────────────────────────────────── */
+.customer-list-page {
+  padding: 1.5rem 2rem;
+  min-height: 100vh;
+  background: var(--surface-ground, #f8f9fa);
+  font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
+}
+
+/* ── Header ─────────────────────────────────────────────────────────────── */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.35);
+  flex-shrink: 0;
+}
+
+.header-icon .pi {
+  color: #fff;
+  font-size: 1.35rem;
+}
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-color, #1e293b);
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+
+.page-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-color-secondary, #64748b);
+  margin: 2px 0 0;
+}
+
+/* ── Filter bar ─────────────────────────────────────────────────────────── */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+  background: var(--surface-card, #fff);
+  padding: 1rem 1.25rem;
+  border-radius: 14px;
+  border: 1px solid var(--surface-border, #e2e8f0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.search-field {
+  flex: 1;
+  min-width: 220px;
+}
+
+.search-input {
+  width: 100%;
+}
+
+.filter-select {
+  min-width: 155px;
+}
+
+.filter-select--sm {
+  min-width: 120px;
+}
+
+.clear-btn {
+  flex-shrink: 0;
+}
+
+/* ── Table wrapper ──────────────────────────────────────────────────────── */
+.table-wrapper {
+  background: var(--surface-card, #fff);
+  border-radius: 16px;
+  border: 1px solid var(--surface-border, #e2e8f0);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+/* PrimeNG table overrides */
+:host ::ng-deep .customer-table .p-datatable-thead > tr > th {
+  background: var(--surface-50, #f8fafc);
+  color: var(--text-color-secondary, #64748b);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  padding: 0.85rem 1rem;
+  border-bottom: 2px solid var(--surface-border, #e2e8f0);
+  white-space: nowrap;
+}
+
+:host ::ng-deep .customer-table .p-datatable-tbody > tr > td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--surface-border, #f1f5f9);
+  font-size: 0.9rem;
+  color: var(--text-color, #1e293b);
+  vertical-align: middle;
+}
+
+:host ::ng-deep .customer-table .p-datatable-tbody > tr:last-child > td {
+  border-bottom: none;
+}
+
+:host ::ng-deep .customer-table .p-datatable-tbody > tr:hover > td {
+  background: #f0f9ff;
+  transition: background 0.15s ease;
+}
+
+:host ::ng-deep .customer-table .p-paginator {
+  border-top: 1px solid var(--surface-border, #e2e8f0);
+  padding: 0.75rem 1rem;
+  background: var(--surface-50, #f8fafc);
+  border-radius: 0 0 16px 16px;
+}
+
+/* ── Customer avatar ────────────────────────────────────────────────────── */
+.customer-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.customer-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.customer-name {
+  font-weight: 600;
+  color: var(--text-color, #1e293b);
+}
+
+/* ── Misc cell styles ───────────────────────────────────────────────────── */
+.id-cell {
+  color: var(--text-color-secondary, #94a3b8) !important;
+  font-size: 0.82rem !important;
+  font-weight: 600;
+}
+
+.mono-text {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.82rem !important;
+}
+
+.text-muted {
+  color: var(--text-color-secondary, #94a3b8) !important;
+}
+
+.email-link {
+  color: #0ea5e9;
+  text-decoration: none;
+  font-size: 0.88rem;
+}
+
+.email-link:hover {
+  text-decoration: underline;
+}
+
+.address-cell {
+  max-width: 220px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.88rem;
+  color: var(--text-color-secondary, #475569);
+}
+
+/* ── Action buttons ─────────────────────────────────────────────────────── */
+.actions-cell {
+  text-align: center;
+}
+
+.action-buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+}
+
+.action-btn {
+  width: 32px !important;
+  height: 32px !important;
+  padding: 0 !important;
+}
+
+:host ::ng-deep .action-btn.p-button-rounded.p-button-text {
+  border-radius: 8px !important;
+}
+
+/* ── Empty state ────────────────────────────────────────────────────────── */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  color: var(--text-color-secondary, #94a3b8);
+}
+
+.empty-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--surface-100, #f1f5f9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+}
+
+.empty-icon .pi {
+  font-size: 1.75rem;
+  color: var(--text-color-secondary, #94a3b8);
+}
+
+.empty-state h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-color, #475569);
+  margin: 0 0 0.5rem;
+}
+
+.empty-state p {
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* ── Dialogs ────────────────────────────────────────────────────────────── */
+:host ::ng-deep .edit-customer-dialog .p-dialog-header,
+:host ::ng-deep .add-customer-dialog .p-dialog-header {
+  border-bottom: 1px solid var(--surface-border, #e2e8f0);
+  padding: 1.25rem 1.5rem 1rem;
+}
+
+:host ::ng-deep .edit-customer-dialog .p-dialog-content,
+:host ::ng-deep .add-customer-dialog .p-dialog-content {
+  padding: 1.5rem;
+  overflow-y: visible;
+}
+
+:host ::ng-deep .edit-customer-dialog .p-dialog-footer,
+:host ::ng-deep .add-customer-dialog .p-dialog-footer {
+  border-top: 1px solid var(--surface-border, #e2e8f0);
+  padding: 1rem 1.5rem;
+}
+
+.edit-form,
+.add-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-field label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-color-secondary, #475569);
+  letter-spacing: 0.2px;
+}
+
+.form-field .required {
+  color: #ef4444;
+  margin-left: 2px;
+}
+
+:host ::ng-deep .form-field .p-inputtext,
+:host ::ng-deep .form-field .p-select {
+  width: 100%;
+  font-size: 0.9rem;
+}
+
+.field-error {
+  color: #ef4444;
+  font-size: 0.78rem;
+  margin-top: 2px;
+}
+
+.toggle-field {
+  padding: 0.85rem 1rem;
+  background: var(--surface-50, #f8fafc);
+  border-radius: 10px;
+  border: 1px solid var(--surface-border, #e2e8f0);
+}
+
+.toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.35rem;
+}
+
+.toggle-label {
+  font-size: 0.88rem;
+  color: var(--text-color, #475569);
+}
+
+.dialog-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .customer-list-page {
+    padding: 1rem;
+  }
+
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-select,
+  .filter-select--sm {
+    min-width: unset;
+    width: 100%;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}

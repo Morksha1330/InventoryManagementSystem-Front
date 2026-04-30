@@ -1,0 +1,120 @@
+<!-- sidebar.html -->
+<mat-sidenav-container class="sidebar-container" autosize>
+  <mat-sidenav
+    #sidenav
+    [mode]="'side'"
+    [opened]="true"
+    [class.expanded]="!isLeftSidebarCollapsed()"
+    [class.collapsed]="isLeftSidebarCollapsed()"
+    class="app-sidenav"
+  >
+    <!-- Logo Section -->
+    <div class="logo-section">
+      <div class="logo-content" [class.centered]="isLeftSidebarCollapsed()">
+        <button class="logo-icon" (click)="toggleCollapse()">
+          <i class="pi pi-bars"></i>
+        </button>
+        <div class="logo-text" *ngIf="!isLeftSidebarCollapsed()">
+          <span class="brand-name">IMS</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Menu -->
+    <mat-nav-list class="nav-list" disableRipple>
+      <!-- Regular menu items (no children) -->
+      <ng-container *ngFor="let item of items">
+        <!-- Items without children -->
+        <a
+          *ngIf="!item.children"
+          mat-list-item
+          [routerLink]="item.routeLink"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+          class="nav-item"
+          [matTooltip]="isLeftSidebarCollapsed() ? item.label : ''"
+          matTooltipPosition="right"
+        >
+          <i class="nav-icon" [ngClass]="item.icon"></i>
+          <span class="nav-label" *ngIf="!isLeftSidebarCollapsed()">
+            {{ item.label }}
+          </span>
+        </a>
+
+        <!-- Items with children (dropdown menus) -->
+        <div *ngIf="item.children" class="nav-item-with-children">
+          <div
+            mat-list-item
+            class="nav-item parent-item"
+            (click)="toggleMenu(item)"
+            [class.expanded]="expandedMenus[item.label]"
+            [matTooltip]="isLeftSidebarCollapsed() ? item.label : ''"
+            matTooltipPosition="right"
+          >
+            <i class="nav-icon" [ngClass]="item.icon"></i>
+            <span class="nav-label" *ngIf="!isLeftSidebarCollapsed()">
+              {{ item.label }}
+            </span>
+            <i 
+              *ngIf="!isLeftSidebarCollapsed()" 
+              class="pi pi-chevron-down chevron-icon" 
+              [class.rotated]="expandedMenus[item.label]"
+            ></i>
+          </div>
+          
+          <!-- Submenu -->
+          <div 
+            *ngIf="!isLeftSidebarCollapsed() && expandedMenus[item.label]" 
+            class="submenu"
+          >
+            <a
+              *ngFor="let child of item.children"
+              mat-list-item
+              [routerLink]="child.routeLink"
+              routerLinkActive="active"
+              class="submenu-item"
+            >
+                <i class="submenu-icon" [ngClass]="child.icon"></i>
+              <span class="submenu-label">{{ child.label }}</span>
+            </a>
+          </div>
+        </div>
+      </ng-container>
+    </mat-nav-list>
+
+    <!-- User Section -->
+    <div class="user-section">
+      <div class="user-separator"></div>
+
+      <div
+        *ngIf="currentUser$ | async as user"
+        class="user-info"
+        [class.centered]="isLeftSidebarCollapsed()"
+      >
+        <div class="user-avatar">
+          <i class="fas fa-user"></i>
+        </div>
+        <div class="user-details" *ngIf="!isLeftSidebarCollapsed()">
+          <span class="user-name">{{ user.name }}</span>
+        </div>
+      </div>
+
+      <!-- <div class="powered-by" *ngIf="!isLeftSidebarCollapsed()">
+        <span>Powered by Myself</span>
+        <span class="copyright">© 2026</span>
+      </div>
+      <div
+        class="powered-by-collapsed"
+        *ngIf="isLeftSidebarCollapsed()"
+        [matTooltip]="'Powered by Myself © 2026'"
+        matTooltipPosition="right"
+      >
+        <span>RI</span>
+      </div> -->
+    </div>
+  </mat-sidenav>
+
+  <mat-sidenav-content class="main-content">
+    <ng-content></ng-content>
+  </mat-sidenav-content>
+</mat-sidenav-container>

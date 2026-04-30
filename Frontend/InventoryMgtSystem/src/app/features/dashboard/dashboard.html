@@ -1,554 +1,218 @@
+<div class="dashboard-wrapper">
 
-<aside class="sidebar">
-    <button type="button" class="sidebar-close-btn">
-    </button>
-    <div class="sidebar-logo">
-        <img src="" alt="site logo" class="light-logo">
-        <img src="" alt="site logo" class="logo-icon">
-
+  <!-- Page Title -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Overview</h1>
+      <p class="page-subtitle">{{ today | date:'EEEE, MMMM d, y' }}</p>
     </div>
-<div class="sidebar-menu-area">
-  <ul class="sidebar-menu">
+    <div class="header-actions">
+      <span class="live-badge">
+        <span class="live-dot"></span>
+        Live
+      </span>
+    </div>
+  </div>
 
-    <!-- Dashboard -->
-    <li>
-      <a routerLink="/dashboard" routerLinkActive="active">
-        <span>Dashboard</span>
-      </a>
-    </li>
+  <!-- KPI Cards -->
+  <div class="kpi-grid">
 
-    <!-- User Management -->
-    <li class="dropdown" [class.active]="activeMenu === 'user'">
-      <a (click)="toggle('user')" class="dropdown-toggle">
-        <span>User Management</span>
-        <i class="chevron-icon"></i>
-      </a>
+    <div class="kpi-card kpi-cyan" (click)="onUserClick()" style="cursor:pointer">
+      <div class="kpi-icon-wrap kpi-icon-cyan">
+        <i class="pi pi-users"></i>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-label">Total Users</span>
+        <span class="kpi-value">{{ totalUsers | number }}</span>
+      </div>
+      <div class="kpi-glow kpi-glow-cyan"></div>
+    </div>
 
-      <ul class="sidebar-submenu"
-          [class.show]="activeMenu === 'user'">
+    <div class="kpi-card kpi-purple">
+      <div class="kpi-icon-wrap kpi-icon-purple">
+        <i class="pi pi-box"></i>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-label">Total Products</span>
+        <span class="kpi-value">{{ totProducts | number }}</span>
+      </div>
+      <div class="kpi-glow kpi-glow-purple"></div>
+    </div>
 
-        <li>
-          <a routerLink="/user-list" (click)="onUserClick()">Users</a>
-        </li>
-        <li>
-          <a routerLink="/edit-users">Edit Users</a>
-        </li>
-        <li>
-          <a routerLink="/profile">My Profile</a>
-        </li>
-        <li>
-          <a routerLink="/createuser" (click)="onCreateUser()">Register Users</a>
-        </li>
+    <div class="kpi-card kpi-blue">
+      <div class="kpi-icon-wrap kpi-icon-blue">
+        <i class="pi pi-tag"></i>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-label">Categories</span>
+        <span class="kpi-value">{{ totCategory | number }}</span>
+      </div>
+      <div class="kpi-glow kpi-glow-blue"></div>
+    </div>
 
-      </ul>
-    </li>
+    <div class="kpi-card kpi-green">
+      <div class="kpi-icon-wrap kpi-icon-green">
+        <i class="pi pi-id-card"></i>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-label">Customers</span>
+        <span class="kpi-value">{{ totCustomer | number }}</span>
+      </div>
+      <div class="kpi-glow kpi-glow-green"></div>
+    </div>
 
-    <!-- Inventory Management -->
-    <li class="dropdown" [class.active]="activeMenu === 'product'">
-      <a (click)="toggle('product')" class="dropdown-toggle">
-        <span>Inventory Management</span>
-        <i class="chevron-icon"></i>
-      </a>
+    <div class="kpi-card kpi-red">
+      <div class="kpi-icon-wrap kpi-icon-red">
+        <i class="pi pi-wallet"></i>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-label">Total Expense</span>
+        <span class="kpi-value">{{ totExpense | number }}</span>
+      </div>
+      <div class="kpi-glow kpi-glow-red"></div>
+    </div>
 
-      <ul class="sidebar-submenu"
-          [class.show]="activeMenu === 'product'">
+    <div class="kpi-card kpi-amber">
+      <div class="kpi-icon-wrap kpi-icon-amber">
+        <i class="pi pi-chart-bar"></i>
+      </div>
+      <div class="kpi-body">
+        <span class="kpi-label">Total Sales</span>
+        <span class="kpi-value">{{ totSales | number }}</span>
+      </div>
+      <div class="kpi-glow kpi-glow-amber"></div>
+    </div>
 
-        <li>
-          <a routerLink="/products">Product List</a>
-        </li>
-        <li>
-          <a routerLink="/categories">Category List</a>
-        </li>
-        <li>
-          <a routerLink="/stock-history">Stock Transaction History</a>
-        </li>
+  </div>
 
-      </ul>
-    </li>
+  <!-- Main Content Grid -->
+  <div class="content-grid">
 
-    <!-- Sales -->
-    <li class="dropdown" [class.active]="activeMenu === 'sales'">
-      <a (click)="toggle('sales')" class="dropdown-toggle">
-        <span>Sales Management</span>
-        <i class="chevron-icon"></i>
-      </a>
+    <!-- Top Selling Products -->
+    <div class="dash-card span-4">
+      <div class="card-header">
+        <div class="card-title-group">
+          <i class="pi pi-star-fill card-title-icon"></i>
+          <h5 class="card-title">Top Selling Products</h5>
+        </div>
+        <span class="badge-pill badge-amber">This Month</span>
+      </div>
+      <div class="top-products-list">
+        <div *ngFor="let p of topProducts; let i = index" class="product-row">
+          <span class="product-rank">#{{ i + 1 }}</span>
+          <span class="product-name">{{ p.productName }}</span>
+          <div class="product-bar-wrap">
+            <div class="product-bar" [style.width.%]="p.pct" [ngClass]="'bar-' + p.color"></div>
+          </div>
+          <span class="product-units">{{ p.totalUnitsSold }} units</span>
+        </div>
+      </div>
+    </div>
 
-      <ul class="sidebar-submenu"
-          [class.show]="activeMenu === 'sales'">
+    <!-- Users Overview Donut -->
+    <div class="dash-card span-2">
+      <div class="card-header">
+        <div class="card-title-group">
+          <i class="pi pi-chart-pie card-title-icon"></i>
+          <h5 class="card-title">User Split</h5>
+        </div>
+      </div>
+      <div class="donut-wrapper">
+        <p-chart type="doughnut" [data]="donutData" [options]="donutOptions" height="180px"></p-chart>
+      </div>
+      <div class="donut-legend">
+        <div class="legend-item">
+          <span class="legend-dot dot-cyan"></span>
+          <span class="legend-label">New</span>
+          <span class="legend-val">{{ newUsers }}</span>
+        </div>
+        <!-- <div class="legend-item">
+          <span class="legend-dot dot-amber"></span>
+          <span class="legend-label">Subscribed</span>
+          <span class="legend-val">{{ subscribedUsers }}</span>
+        </div> -->
+      </div>
+    </div>
 
-        <li>
-          <a routerLink="/stock-report">Customers</a>
-        </li>
-        <li>
-          <a routerLink="/sales-report">Products</a>
-        </li>
-        
-      </ul>
-    </li>
+    <!-- Sales Trend -->
+    <div class="dash-card span-4">
+      <div class="card-header">
+        <div class="card-title-group">
+          <i class="pi pi-chart-line card-title-icon"></i>
+          <h5 class="card-title">Sales Trend</h5>
+        </div>
+        <span class="badge-pill badge-green">Last 7 Days</span>
+      </div>
+      <p-chart type="line" [data]="lineData" [options]="lineOptions" height="200px"></p-chart>
+    </div>
 
-    <!-- Supplier -->
-    <li class="dropdown" [class.active]="activeMenu === 'supplier'">
-      <a (click)="toggle('supplier')" class="dropdown-toggle">
-        <span>Supplier Management</span>
-        <i class="chevron-icon"></i>
-      </a>
+    <!-- Stock Alerts -->
+    <div class="dash-card span-2">
+      <div class="card-header">
+        <div class="card-title-group">
+          <i class="pi pi-exclamation-triangle card-title-icon icon-red"></i>
+          <h5 class="card-title">Low Stock</h5>
+        </div>
+        <span class="badge-pill badge-red">{{ lowStockItems.length }} items</span>
+      </div>
+      <div class="stock-list">
+        <div *ngFor="let item of lowStockItems" class="stock-row">
+          <div class="stock-info">
+            <span class="stock-name">{{ item.productName }}</span>
+            <span class="stock-category">{{ item.categoryName }}</span>
+          </div>
+          <span class="stock-qty" [ngClass]="item.quantityInStock <= 5 ? 'qty-critical' : 'qty-warning'">
+            {{ item.quantityInStock }} left
+          </span>
+        </div>
+      </div>
+    </div>
 
-      <ul class="sidebar-submenu"
-          [class.show]="activeMenu === 'supplier'">
+    <!-- Recent Users Table -->
+    <div class="dash-card span-6">
+      <div class="card-header">
+        <div class="card-title-group">
+          <i class="pi pi-users card-title-icon"></i>
+          <h5 class="card-title">Recent Users</h5>
+        </div>
+        <button class="btn-link" (click)="onUserClick()">View all <i class="pi pi-arrow-right"></i></button>
+      </div>
+      <div class="table-scroll">
+        <table class="dash-table">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Registered</th>
+              <th>Plan</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let u of recentUsers">
+              <td>
+                <div class="user-cell">
+                  <div class="avatar-circle" [ngStyle]="{'background': u.avatarBg}">{{ u.initials }}</div>
+                  <div class="user-cell-info">
+                    <span class="user-cell-name">{{ u.name }}</span>
+                    <span class="user-cell-email">{{ u.email }}</span>
+                  </div>
+                </div>
+              </td>
+              <td class="td-muted">{{ u.createdDate | date }}</td>
+              <td>
+                <!-- <span class="plan-pill" [ngClass]="'plan-' + u.planColor">{{ u.plan }}</span> -->
+              </td>
+              <td>
+                <span class="status-pill" [ngClass]="u.active ? 'status-active' : 'status-inactive'">
+                  {{ u.active ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-        <li>
-          <a routerLink="/suppliers">Supplier List</a>
-        </li>
-        <li>
-          <a routerLink="/purchase-orders">Purchase Orders</a>
-        </li>
-        <li>
-          <a routerLink="/create-purchase">Create Purchase</a>
-        </li>
+  </div>
 
-      </ul>
-    </li>
-
-    <!-- Reports -->
-    <li class="dropdown" [class.active]="activeMenu === 'reports'">
-      <a (click)="toggle('reports')" class="dropdown-toggle">
-        <span>Reports</span>
-        <i class="chevron-icon"></i>
-      </a>
-
-      <ul class="sidebar-submenu"
-          [class.show]="activeMenu === 'reports'">
-
-        <li>
-          <a routerLink="/stock-report">Stock Report</a>
-        </li>
-        <li>
-          <a routerLink="/sales-report">Sales Report</a>
-        </li>
-        <li>
-          <a routerLink="/purchase-report">Purchase Report</a>
-        </li>
-        <li>
-          <a routerLink="/profit-loss">Profit / Loss</a>
-        </li>
-
-      </ul>
-    </li>
-
-
-  </ul>
 </div>
-</aside>
-
-<main class="dashboard-main">
-    <div class="navbar-header">
-        <div class="row align-items-center justify-content-between">
-            <div class="col-auto">
-                <div class="d-flex flex-wrap align-items-center gap-4">
-                    <button type="button" class="sidebar-toggle">
-                    </button>
-                    <button type="button" class="sidebar-mobile-toggle">
-                    </button>
-                    <!-- <form class="navbar-search">
-                        <input type="text" name="search" placeholder="Search">
-                    </form> -->
-                </div>
-            </div>
-            <div class="col-auto">
-                <div class="d-flex flex-wrap align-items-center gap-3">
-                    <button type="button" data-theme-toggle
-                        class="w-40-px h-40-px bg-neutral-200 rounded-circle d-flex justify-content-center align-items-center"></button>
-
-                    <div class="dropdown">
-                        <button class="d-flex justify-content-center align-items-center rounded-circle" type="button"
-                            id="userDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false" 
-                            aria-haspopup="true">
-                            <img src="" alt="image"
-                                class="w-40-px h-40-px object-fit-cover rounded-circle">
-                        </button>
-                        <div class="dropdown-menu to-top dropdown-menu-sm" aria-labelledby="userDropdownBtn">
-                            <div
-                                class="py-12 px-16 radius-8 bg-primary-50 mb-16 d-flex align-items-center justify-content-between gap-2">
-                                <div>
-                                    <h6 class="text-lg text-primary-light fw-semibold mb-2">SP</h6>
-                                    <span class="text-secondary-light fw-medium text-sm">Admin</span>
-                                </div>
-                                <button type="button" class="hover-text-danger">
-                                </button>
-                            </div>
-                            <ul class="to-top-list">
-                                <li>
-                                    <a class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-primary d-flex align-items-center gap-3"
-                                        href="view-profile.html">
-                                        My Profile</a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-primary d-flex align-items-center gap-3"
-                                        href="email.html">
-                                        Inbox</a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-primary d-flex align-items-center gap-3"
-                                        href="company.html">
-                                        Setting</a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item text-black px-0 py-8 hover-bg-transparent hover-text-danger d-flex align-items-center gap-3"
-                                        href="javascript:void(0)">
-                                        Log Out</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="dashboard-main-body">
-        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-24">
-            <h6 class="fw-semibold mb-0">Dashboard</h6>
-
-        </div>
-
-        <div class="row row-cols-xxxl-5 row-cols-lg-3 row-cols-sm-2 row-cols-1 gy-4">
-            <div class="col">
-                <div class="card shadow-none border bg-gradient-start-1 h-100">
-                    <div class="card-body p-20">
-                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
-                            <div>
-                                <p class="fw-medium text-primary-light mb-1">Total Users</p>
-                                <h6 class="mb-0">{{ totalUsers }}</h6>
-                            </div>
-                            <div 
-                                class="w-50-px h-50-px bg-cyan rounded-circle d-flex justify-content-center align-items-center">
-                            </div>
-                        </div>
-                    </div>
-                </div> 
-            </div> 
-            <div class="col">
-                <div class="card shadow-none border bg-gradient-start-2 h-100">
-                    <div class="card-body p-20">
-                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
-                            <div>
-                                <p class="fw-medium text-primary-light mb-1">Total Products</p>
-                                <h6 class="mb-0">{{ totProducts }}</h6>
-                            </div>
-                            <div 
-                                class="w-50-px h-50-px bg-purple rounded-circle d-flex justify-content-center align-items-center">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col">
-                <div class="card shadow-none border bg-gradient-start-3 h-100">
-                    <div class="card-body p-20">
-                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
-                            <div>
-                                <p class="fw-medium text-primary-light mb-1">Total Categories</p>
-                                <h6 class="mb-0">{{ totCategory }}</h6>
-                            </div> 
-                            <div
-                                class="w-50-px h-50-px bg-info rounded-circle d-flex justify-content-center align-items-center">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col">
-                <div class="card shadow-none border bg-gradient-start-4 h-100">
-                    <div class="card-body p-20">
-                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
-                            <div>
-                                <p class="fw-medium text-primary-light mb-1">Total Customers</p>
-                                <h6 class="mb-0">{{totCustomer}}</h6>
-                            </div>
-                            <div
-                                class="w-50-px h-50-px bg-success-main rounded-circle d-flex justify-content-center align-items-center">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col">
-                <div class="card shadow-none border bg-gradient-start-5 h-100">
-                    <div class="card-body p-20">
-                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
-                            <div>
-                                <p class="fw-medium text-primary-light mb-1">Total Expense</p>
-                                <h6 class="mb-0">{{totExpense}}</h6>
-                            </div>
-                            <div
-                                class="w-50-px h-50-px bg-red rounded-circle d-flex justify-content-center align-items-center">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col">
-                <div class="card shadow-none border bg-gradient-start-5 h-100">
-                    <div class="card-body p-20">
-                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
-                            <div>
-                                <p class="fw-medium text-primary-light mb-1">Total Sales</p>
-                                <h6 class="mb-0">{{totSales}}</h6>
-                            </div>
-                            <div
-                                class="w-50-px h-50-px bg-red rounded-circle d-flex justify-content-center align-items-center">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="row gy-4 mt-1">
-            <div class="col-xxl-6 col-xl-12">
-                <div class="card h-100">
-                    <div class="card-body">
-                        <div class="d-flex flex-wrap align-items-center justify-content-between">
-                            <h6 class="text-lg mb-0">Top Selling Product</h6>
-                        </div>
-                        <div class="d-flex flex-wrap align-items-center gap-2 mt-8">
-                            <h6 class="mb-0">{{topSellingProducts}}</h6>
-                        </div>
-                        <div id="chart" class="pt-28 apexcharts-tooltip-style-1"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-xxl-3 col-xl-6">
-                <div class="card h-100 radius-8 border-0 overflow-hidden">
-                    <div class="card-body p-24">
-                        <div class="d-flex align-items-center flex-wrap gap-2 justify-content-between">
-                            <h6 class="mb-2 fw-bold text-lg">Users Overview</h6>
-
-                        </div>
-
-
-                        <div id="userOverviewDonutChart" class="apexcharts-tooltip-z-none"></div>
-
-                        <ul class="d-flex flex-wrap align-items-center justify-content-between mt-3 gap-3">
-                            <li class="d-flex align-items-center gap-2">
-                                <span class="w-12-px h-12-px radius-2 bg-primary-600"></span>
-                                <span class="text-secondary-light text-sm fw-normal">New:
-                                    <span class="text-primary-light fw-semibold">500</span>
-                                </span>
-                            </li>
-                            <li class="d-flex align-items-center gap-2">
-                                <span class="w-12-px h-12-px radius-2 bg-yellow"></span>
-                                <span class="text-secondary-light text-sm fw-normal">Subscribed:
-                                    <span class="text-primary-light fw-semibold">300</span>
-                                </span>
-                            </li>
-                        </ul>
-
-                    </div>
-                </div>
-            </div>
-            <div class="col-xxl-9 col-xl-12">
-                <div class="card h-100">
-                    <div class="card-body p-24">
-
-                        
-
-                        <div class="tab-content" id="pills-tabContent">
-                            <div class="tab-pane fade show active" id="pills-to-do-list" role="tabpanel"
-                                aria-labelledby="pills-to-do-list-tab" tabindex="0">
-                                <div class="table-responsive scroll-sm">
-                                    <table class="table bordered-table sm-table mb-0">
-                                        <thead>
-                                            <tr>
-                                                <th scope="col">Users </th>
-                                                <th scope="col">Registered On</th>
-                                                <th scope="col">Plan</th>
-                                                <th scope="col" class="text-center">Status</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>
-                                                    <div class="d-flex align-items-center">
-                                                        <img src="" alt="Image"
-                                                            class="w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden">
-                                                        <div class="flex-grow-1">
-                                                            <h6 class="text-md mb-0 fw-medium">Dianne Russell</h6>
-                                                            <span
-                                                                class="text-sm text-secondary-light fw-medium">redaniel@gmail.com</span>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td>27 Mar 2024</td>
-                                                <td>Free</td>
-                                                <td class="text-center">
-                                                    <span
-                                                        class="bg-success-focus text-success-main px-24 py-4 rounded-pill fw-medium text-sm">Active</span>
-                                                </td>
-                                            </tr>
-
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <div class="tab-pane fade" id="pills-recent-leads" role="tabpanel"
-                                aria-labelledby="pills-recent-leads-tab" tabindex="0">
-                                <div class="table-responsive scroll-sm">
-                                    <table class="table bordered-table sm-table mb-0">
-                                        <thead>
-                                            <tr>
-                                                <th scope="col">Users </th>
-                                                <th scope="col">Registered On</th>
-                                                <th scope="col">Plan</th>
-                                                <th scope="col" class="text-center">Status</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>
-                                                    <div class="d-flex align-items-center">
-                                                        <img src="" alt="Image"
-                                                            class="w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden">
-                                                        <div class="flex-grow-1">
-                                                            <h6 class="text-md mb-0 fw-medium">Dianne Russell</h6>
-                                                            <span
-                                                                class="text-sm text-secondary-light fw-medium">redaniel@gmail.com</span>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td>27 Mar 2024</td>
-                                                <td>Free</td>
-                                                <td class="text-center">
-                                                    <span
-                                                        class="bg-success-focus text-success-main px-24 py-4 rounded-pill fw-medium text-sm">Active</span>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    <div class="d-flex align-items-center">
-                                                        <img src="" alt="Image"
-                                                            class="w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden">
-                                                        <div class="flex-grow-1">
-                                                            <h6 class="text-md mb-0 fw-medium">Wade Warren</h6>
-                                                            <span
-                                                                class="text-sm text-secondary-light fw-medium">xterris@gmail.com</span>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td>27 Mar 2024</td>
-                                                <td>Basic</td>
-                                                <td class="text-center">
-                                                    <span
-                                                        class="bg-success-focus text-success-main px-24 py-4 rounded-pill fw-medium text-sm">Active</span>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    <div class="d-flex align-items-center">
-                                                        <img src="" alt="Image"
-                                                            class="w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden">
-                                                        <div class="flex-grow-1">
-                                                            <h6 class="text-md mb-0 fw-medium">Albert Flores</h6>
-                                                            <span
-                                                                class="text-sm text-secondary-light fw-medium">seannand@mail.ru</span>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td>27 Mar 2024</td>
-                                                <td>Standard</td>
-                                                <td class="text-center">
-                                                    <span
-                                                        class="bg-success-focus text-success-main px-24 py-4 rounded-pill fw-medium text-sm">Active</span>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    <div class="d-flex align-items-center">
-                                                        <img src="" alt="Image"
-                                                            class="w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden">
-                                                        <div class="flex-grow-1">
-                                                            <h6 class="text-md mb-0 fw-medium">Bessie Cooper </h6>
-                                                            <span
-                                                                class="text-sm text-secondary-light fw-medium">igerrin@gmail.com</span>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td>27 Mar 2024</td>
-                                                <td>Business</td>
-                                                <td class="text-center">
-                                                    <span
-                                                        class="bg-success-focus text-success-main px-24 py-4 rounded-pill fw-medium text-sm">Active</span>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    <div class="d-flex align-items-center">
-                                                        <img src="" alt="Image"
-                                                            class="w-40-px h-40-px rounded-circle flex-shrink-0 me-12 overflow-hidden">
-                                                        <div class="flex-grow-1">
-                                                            <h6 class="text-md mb-0 fw-medium">Arlene McCoy</h6>
-                                                            <span
-                                                                class="text-sm text-secondary-light fw-medium">fellora@mail.ru</span>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td>27 Mar 2024</td>
-                                                <td>Enterprise </td>
-                                                <td class="text-center">
-                                                    <span
-                                                        class="bg-success-focus text-success-main px-24 py-4 rounded-pill fw-medium text-sm">Active</span>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
-    <footer class="d-footer">
-        <div class="row align-items-center justify-content-between">
-            <div class="col-auto">
-                <p class="mb-0">© 2024 HMKP. All Rights Reserved.</p>
-            </div>
-
-        </div>
-    </footer>
-</main>
-
-<!-- jQuery library js
-  <script src="/src/app/shared/assets/js/lib/jquery-3.7.1.min.js"></script>
-  <!-- Bootstrap js -->
-<!-- <script src="/src/app/shared/assets/js/lib/bootstrap.bundle.min.js"></script> -->
-<!-- Apex Chart js -->
-<!-- <script src="/src/app/shared/assets/js/lib/apexcharts.min.js"></script> -->
-<!-- Data Table js -->
-<!-- <script src="/src/app/shared/assets/js/lib/dataTables.min.js"></script> -->
-<!-- Iconify Font js -->
-<!-- <script src="/src/app/shared/assets/js/lib/iconify-icon.min.js"></script> -->
-<!-- jQuery UI js -->
-<!-- <script src="/src/app/shared/assets/js/lib/jquery-ui.min.js"></script> -->
-<!-- Vector Map js -->
-<!-- <script src="/src/app/shared/assets/js/lib/jquery-jvectormap-2.0.5.min.js"></script> -->
-<!-- <script src="/src/app/shared/assets/js/lib/jquery-jvectormap-world-mill-en.js"></script> -->
-<!-- Popup js -->
-<!-- <script src="/src/app/shared/assets/js/lib/magnifc-popup.min.js"></script> -->
-<!-- Slick Slider js -->
-<!-- <script src="/src/app/shared/assets/js/lib/slick.min.js"></script> -->
-<!-- prism js -->
-<!-- <script src="/src/app/shared/assets/js/lib/prism.js"></script> -->
-<!-- file upload js -->
-<!-- <script src="/src/app/shared/assets/js/lib/file-upload.js"></script> -->
-<!-- audioplayer -->
-<!-- <script src="/src/app/shared/assets/js/lib/audioplayer.js"></script> -->
-
-<!-- main js -->
-<!-- <script src="/src/app/shared/assets/js/app.js"></script> -->
-
-<!-- <script src="/src/app/shared/assets/js/homeOneChart.js"></script> -->

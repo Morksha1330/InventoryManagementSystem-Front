@@ -1,86 +1,265 @@
-<div class="users-container">
 
-  <!-- Header -->
-  <div class="header">
-    <h2>Users Grid</h2>
-    <div class="breadcrumb">Dashboard - <span>Users Grid</span></div>
-  </div>
+<div class="customer-list-page">
 
-  <!-- Top Controls -->
-  <div class="controls">
-    <div class="left-controls">
-      <div class="show">
-        <label>Show</label>
-        <select>
-          <option>10</option>
-          <option>25</option>
-          <option>50</option>
-        </select>
+  <div class="page-header">
+    <div class="header-left">
+      <div class="header-icon">
+        <i class="pi pi-id-card"></i>
       </div>
-
-      <div class="search">
-        <input type="text" placeholder="Search">
-      </div>
-
-      <div class="status-filter">
-        <select>
-          <option>Status</option>
-          <option>Active</option>
-          <option>Inactive</option> 
-        </select>-
+      <div>
+        <h5 class="page-title">Customer Management</h5>
+        <p class="page-subtitle">
+          {{ totalRecords() }} customer{{ totalRecords() !== 1 ? 's' : '' }} registered
+        </p>
       </div>
     </div>
-
-    <button class="add-btn">Add New User</button>
+    <button pButton type="button" label="Add Customer" icon="pi pi-plus" class="p-button-primary"
+      (click)="openCreate()"></button>
   </div>
 
-  <!-- Table -->
-  <div class="table-wrapper">
-    <table>
-      <thead>
-        <tr>
-          <th><input type="checkbox"></th>
-          <th>S.L</th>
-          <th>Username</th>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Status</th>
-          <th>Action</th>
-        </tr>
-      </thead>
+  <div class="filter-bar">
+    <!-- Search -->
+    <p-iconfield class="search-field">
+      <p-inputicon>
+        <i class="pi pi-search"></i>
+      </p-inputicon>
+      <input pInputText type="text" placeholder="Search by name, email, phone…" (input)="onSearchInput($event)"
+        class="search-input" />
+    </p-iconfield>
 
-      <tbody>
-        <tr *ngFor="let user of users; let i = index">
-          <td><input type="checkbox"></td>
-          <td>{{ i + 1 }}</td>
-          <td>{{ user.username }}</td>
-          <td>{{ user.name }}</td>
-          <td>{{ user.email }}</td>
-          <td ngif="user.active === 'Active' ? 'active' : 'Deactive'">{{ user.active }}</td>
-          <td class="actions">
-            <button class="edit" (click)="ClickEdit()">✏</button>
-            <button class="delete" (click)="ClickDelete()">🗑</button>
+    <!-- Status Filter -->
+    <p-select [options]="statusOptions" optionLabel="label" optionValue="value" placeholder="All Status"
+      [ngModel]="selectedStatusFilter()" (ngModelChange)="onStatusFilterChange($event)" class="filter-select" />
+
+    <!-- Page Size -->
+    <p-select [options]="pageSizeOptions" optionLabel="label" optionValue="value" [ngModel]="pageSize()"
+      (ngModelChange)="onPageSizeChange($event)" class="filter-select filter-select--sm" />
+
+    <!-- Clear Filters -->
+    @if (hasActiveFilters) {
+    <button pButton type="button" icon="pi pi-filter-slash" label="Clear"
+      class="p-button-outlined p-button-secondary clear-btn" (click)="clearFilters()"
+      pTooltip="Clear all filters"></button>
+    }
+  </div>
+
+  <div class="table-wrapper">
+    <p-table #dt [value]="customers()" [rows]="pageSize()" [totalRecords]="totalRecords()" [loading]="loading()"
+      [paginator]="true" [lazy]="true" [rowsPerPageOptions]="[10, 20, 50]" [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} customers" [sortMode]="'single'"
+      (onPage)="onPage($event)" (onSort)="onSort($event)" styleClass="p-datatable-gridlines customer-table"
+      [tableStyle]="{ 'min-width': '860px' }" responsiveLayout="scroll">
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="id" style="width: 60px">#<p-sortIcon field="id" /></th>
+          <th pSortableColumn="customerName">Name<p-sortIcon field="customerName" /></th>
+          <th pSortableColumn="customerEmail">Email<p-sortIcon field="customerEmail" /></th>
+          <th pSortableColumn="phoneNumber">Phone<p-sortIcon field="phoneNumber" /></th>
+          <th pSortableColumn="address">Address<p-sortIcon field="address" /></th>
+          <th pSortableColumn="active" style="width: 110px">Status<p-sortIcon field="active" /></th>
+          <th style="width: 120px; text-align: center">Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="loadingbody">
+        @for (row of skeletonRows; track $index) {
+        <tr>
+          @for (col of [1,2,3,4,5,6,7]; track col) {
+          <td><p-skeleton height="1.75rem" borderRadius="6px" /></td>
+          }
+        </tr>
+        }
+      </ng-template>
+
+      <ng-template pTemplate="body" let-customer>
+        <tr class="customer-row">
+          <td class="text-muted id-cell">{{ customer.id }}</td>
+
+          <td>
+            <div class="customer-name-cell">
+              <div class="customer-avatar" [style.background]="avatarColor(customer.customerName)">
+                {{ customer.customerName.charAt(0).toUpperCase() }}
+              </div>
+              <span class="customer-name">{{ customer.customerName }}</span>
+            </div>
+          </td>
+
+          <td>
+            <a [href]="'mailto:' + customer.customerEmail" class="email-link">{{ customer.customerEmail }}</a>
+          </td>
+
+          <td class="mono-text text-muted">{{ customer.phoneNumber || '—' }}</td>
+
+          <td class="address-cell">{{ customer.address || '—' }}</td>
+
+          <td>
+            <p-tag [value]="customer.active ? 'Active' : 'Inactive'"
+              [severity]="customer.active ? 'success' : 'danger'" [rounded]="true" />
+          </td>
+
+          <td class="actions-cell">
+            <div class="action-buttons">
+              <button pButton type="button" icon="pi pi-pencil"
+                class="p-button-rounded p-button-text p-button-info action-btn" pTooltip="Edit customer"
+                tooltipPosition="top" (click)="openEdit(customer)"></button>
+
+              <button pButton type="button" [icon]="customer.active ? 'pi pi-ban' : 'pi pi-check-circle'"
+                class="p-button-rounded p-button-text action-btn"
+                [ngClass]="customer.active ? 'p-button-warning' : 'p-button-success'"
+                [pTooltip]="customer.active ? 'Deactivate' : 'Activate'" tooltipPosition="top"
+                (click)="toggleStatus(customer)"></button>
+
+              <button pButton type="button" icon="pi pi-trash"
+                class="p-button-rounded p-button-text p-button-danger action-btn" pTooltip="Delete customer"
+                tooltipPosition="top" (click)="confirmDelete(customer)"></button>
+            </div>
           </td>
         </tr>
-        
-      </tbody>
-    </table>
+      </ng-template>
 
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7">
+            <div class="empty-state">
+              <div class="empty-icon">
+                <i class="pi pi-inbox"></i>
+              </div>
+              <h3>No customers found</h3>
+              <p>
+                @if (hasActiveFilters) {
+                Try adjusting your search or filter criteria.
+                <button pButton type="button" label="Clear Filters" class="p-button-link"
+                  (click)="clearFilters()"></button>
+                } @else {
+                No customers have been registered yet.
+                }
+              </p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+    </p-table>
   </div>
-
-
-  <!-- Footer -->
-  <!-- <div class="footer">
-    <span>Showing 1 to 10 of 12 entries</span>
-
-    <div class="pagination">
-      <button>&laquo;</button>
-      <button class="active">1</button>
-      <button>2</button>
-      <button>3</button>
-      <button>&raquo;</button>
-    </div>
-  </div> -->
-
 </div>
 
+<p-dialog [visible]="editDialogVisible()" (visibleChange)="editDialogVisible.set($event)" [modal]="true"
+  [closable]="true" [draggable]="false" [resizable]="false" [style]="{ width: '560px' }"
+  styleClass="edit-customer-dialog" [header]="'Edit Customer — ' + (selectedCustomer()?.customerName ?? '')"
+  (onHide)="closeEditDialog()">
+
+  <form [formGroup]="editForm" class="edit-form" novalidate>
+    <div class="form-row">
+      <div class="form-field">
+        <label for="edit-name">Full Name <span class="required">*</span></label>
+        <input id="edit-name" pInputText formControlName="customerName" placeholder="Enter customer name"
+          [class.ng-invalid]="fieldError('customerName')" [class.ng-dirty]="fieldError('customerName')" />
+        @if (fieldError('customerName')) {
+        <small class="field-error">{{ fieldErrorMsg('customerName') }}</small>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="edit-email">Email Address <span class="required">*</span></label>
+        <input id="edit-email" pInputText type="email" formControlName="customerEmail" placeholder="Enter email"
+          [class.ng-invalid]="fieldError('customerEmail')" [class.ng-dirty]="fieldError('customerEmail')" />
+        @if (fieldError('customerEmail')) {
+        <small class="field-error">{{ fieldErrorMsg('customerEmail') }}</small>
+        }
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-field">
+        <label for="edit-phone">Phone Number</label>
+        <input id="edit-phone" pInputText formControlName="phoneNumber" placeholder="Phone number (optional)" />
+      </div>
+
+      <div class="form-field">
+        <label for="edit-address">Address</label>
+        <input id="edit-address" pInputText formControlName="address" placeholder="Address (optional)" />
+      </div>
+    </div>
+
+    <div class="form-field toggle-field">
+      <label>Account Status</label>
+      <div class="toggle-row">
+        <p-toggleswitch formControlName="active" />
+        <span class="toggle-label">
+          {{ editForm.get('active')?.value ? 'Active — customer is enabled' : 'Inactive — customer is disabled' }}
+        </span>
+      </div>
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <div class="dialog-footer">
+      <button pButton type="button" label="Cancel" icon="pi pi-times" class="p-button-outlined p-button-secondary"
+        (click)="closeEditDialog()" [disabled]="saving()"></button>
+      <button pButton type="button" label="Save Changes" icon="pi pi-check" class="p-button-primary"
+        (click)="saveCustomer()" [loading]="saving()"></button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<p-dialog [visible]="addDialogVisible()" (visibleChange)="addDialogVisible.set($event)" [modal]="true"
+  [closable]="true" [draggable]="false" [resizable]="false" [style]="{ width: '560px' }"
+  styleClass="add-customer-dialog" [header]="'Add New Customer'" (onHide)="closeAddDialog()">
+
+  <form [formGroup]="addForm" class="add-form" novalidate>
+    <div class="form-row">
+      <div class="form-field">
+        <label for="add-name">Full Name <span class="required">*</span></label>
+        <input id="add-name" pInputText formControlName="customerName" placeholder="Enter customer name"
+          [class.ng-invalid]="fieldError('customerName', 'add')" [class.ng-dirty]="fieldError('customerName', 'add')" />
+        @if (fieldError('customerName', 'add')) {
+        <small class="field-error">{{ fieldErrorMsg('customerName', 'add') }}</small>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="add-email">Email Address <span class="required">*</span></label>
+        <input id="add-email" pInputText type="email" formControlName="customerEmail" placeholder="Enter email"
+          [class.ng-invalid]="fieldError('customerEmail', 'add')"
+          [class.ng-dirty]="fieldError('customerEmail', 'add')" />
+        @if (fieldError('customerEmail', 'add')) {
+        <small class="field-error">{{ fieldErrorMsg('customerEmail', 'add') }}</small>
+        }
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-field">
+        <label for="add-phone">Phone Number</label>
+        <input id="add-phone" pInputText formControlName="phoneNumber" placeholder="Phone number (optional)" />
+      </div>
+
+      <div class="form-field">
+        <label for="add-address">Address</label>
+        <input id="add-address" pInputText formControlName="address" placeholder="Address (optional)" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-field">
+        <label for="add-status">Status <span class="required">*</span></label>
+        <p-select inputId="add-status" [options]="statusFormOptions" optionLabel="label" optionValue="value"
+          formControlName="active" placeholder="Select Status" [class.ng-invalid]="fieldError('active', 'add')"
+          [class.ng-dirty]="fieldError('active', 'add')" styleClass="w-full" />
+        @if (fieldError('active', 'add')) {
+        <small class="field-error">{{ fieldErrorMsg('active', 'add') }}</small>
+        }
+      </div>
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <div class="dialog-footer">
+      <button pButton type="button" label="Cancel" icon="pi pi-times" class="p-button-outlined p-button-secondary"
+        (click)="closeAddDialog()" [disabled]="saving()"></button>
+      <button pButton type="button" label="Add Customer" icon="pi pi-check" class="p-button-primary"
+        (click)="createCustomer()" [loading]="saving()"></button>
+    </div>
+  </ng-template>
+</p-dialog>
