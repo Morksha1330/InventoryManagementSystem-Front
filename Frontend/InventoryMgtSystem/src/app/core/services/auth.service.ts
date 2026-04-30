@@ -76,7 +76,8 @@ export class AuthService {
                 epF_No: decoded.epF_No || decoded.EPF_No,
                 active: decoded.active || decoded.Active,
                 status: undefined,
-                phone: ''
+                phone: '',
+                Activebool: decoded.active === 'true' || decoded.active === true
             };
             this.currentUserSubject.next(user);
         } catch (error) {
@@ -138,7 +139,8 @@ export class AuthService {
             epF_No: user.epF_No,
             active: user.active,
             status: undefined,
-            phone: ''
+            phone: '',
+            Activebool: user.active === 'true' || user.active === true
         };
         this.currentUserSubject.next(mappedUser);
     }

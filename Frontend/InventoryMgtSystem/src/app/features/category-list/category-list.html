@@ -1,0 +1,325 @@
+
+<p-toast position="top-right" />
+<p-confirmDialog />
+
+<div class="category-list-page">
+
+  <div class="page-header">
+    <div class="header-left">
+      <div class="header-icon">
+        <i class="pi pi-tags"></i>
+      </div>
+      <div>
+        <h5 class="page-title">Category Management</h5>
+        <p class="page-subtitle">
+          {{ totalRecords() }} categor{{ totalRecords() !== 1 ? 'ies' : 'y' }} registered
+        </p>
+      </div>
+    </div>
+    <button pButton type="button" label="Add Category" icon="pi pi-plus" class="p-button-primary"
+      (click)="openCreate()"></button>
+  </div>
+
+  <div class="filter-bar">
+    <!-- Search karnna -->
+    <p-iconfield class="search-field">
+      <p-inputicon>
+        <i class="pi pi-search"></i>
+      </p-inputicon>
+      <input pInputText type="text" placeholder="Search by name, code, description…"
+        (input)="onSearchInput($event)" class="search-input" />
+    </p-iconfield>
+
+    <!-- Status Filter eka -->
+    <p-select [options]="statusOptions" optionLabel="label" optionValue="value"
+      placeholder="All Status" [ngModel]="selectedStatusFilter()"
+      (ngModelChange)="onStatusFilterChange($event)" class="filter-select" />
+
+    <p-select [options]="pageSizeOptions" optionLabel="label" optionValue="value"
+      [ngModel]="pageSize()" (ngModelChange)="onPageSizeChange($event)"
+      class="filter-select filter-select--sm" />
+
+    @if (hasActiveFilters) {
+    <button pButton type="button" icon="pi pi-filter-slash" label="Clear"
+      class="p-button-outlined p-button-secondary clear-btn" (click)="clearFilters()"
+      pTooltip="Clear all filters"></button>
+    }
+  </div>
+
+  <div class="table-wrapper">
+    <p-table #dt [value]="categories()" [rows]="pageSize()" [totalRecords]="totalRecords()"
+      [loading]="loading()" [paginator]="true" [lazy]="true"
+      [rowsPerPageOptions]="[10, 20, 50]" [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} categories"
+      [sortMode]="'single'" (onPage)="onPage($event)" (onSort)="onSort($event)"
+      styleClass="p-datatable-gridlines category-table"
+      [tableStyle]="{ 'min-width': '860px' }" responsiveLayout="scroll">
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="id" style="width: 60px">#<p-sortIcon field="id" /></th>
+          <th pSortableColumn="categoryCode">Code<p-sortIcon field="categoryCode" /></th>
+          <th pSortableColumn="categoryName">Category Name<p-sortIcon field="categoryName" /></th>
+          <th pSortableColumn="description">Description<p-sortIcon field="description" /></th>
+          <th pSortableColumn="productCount" style="width: 120px; text-align: right">
+            Products<p-sortIcon field="productCount" />
+          </th>
+          <th pSortableColumn="subCategoryCount" style="width: 140px; text-align: right">
+            Sub-Categories<p-sortIcon field="subCategoryCount" />
+          </th>
+          <th pSortableColumn="active" style="width: 110px">Status<p-sortIcon field="active" /></th>
+          <th pSortableColumn="createdDate" style="width: 130px">
+            Created<p-sortIcon field="createdDate" />
+          </th>
+          <th style="width: 120px; text-align: center">Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="loadingbody">
+        @for (row of skeletonRows; track $index) {
+        <tr>
+          @for (col of [1,2,3,4,5,6,7,8,9]; track col) {
+          <td><p-skeleton height="1.75rem" borderRadius="6px" /></td>
+          }
+        </tr>
+        }
+      </ng-template>
+
+      <ng-template pTemplate="body" let-category>
+        <tr class="category-row">
+          <td class="text-muted id-cell">{{ category.id }}</td>
+
+          <td>
+            <span class="code-badge">{{ category.categoryCode }}</span>
+          </td>
+
+          <td>
+            <div class="category-name-cell">
+              <div class="category-icon" [style.background]="iconColor(category.categoryName)">
+                <i class="pi pi-tag"></i>
+              </div>
+              <span class="category-name">{{ category.categoryName }}</span>
+            </div>
+          </td>
+
+          <td class="description-cell">
+            <span class="description-text" [pTooltip]="category.description" tooltipPosition="top">
+              {{ category.description || '—' }}
+            </span>
+          </td>
+
+          <td class="count-cell">
+            <div class="count-chip count-chip--products">
+              <i class="pi pi-box"></i>
+              <span>{{ category.productCount }}</span>
+            </div>
+          </td>
+
+          <td class="count-cell">
+            <div class="count-chip count-chip--subs">
+              <i class="pi pi-sitemap"></i>
+              <span>{{ category.subCategoryCount }}</span>
+            </div>
+          </td>
+
+          <td>
+            <p-tag [value]="category.active ? 'Active' : 'Inactive'"
+              [severity]="category.active ? 'success' : 'danger'" [rounded]="true" />
+          </td>
+
+          <td class="date-cell text-muted">
+            {{ category.createdDate ? (category.createdDate | date:'dd MMM yyyy') : '—' }}
+          </td>
+
+          <td class="actions-cell">
+            <div class="action-buttons">
+              <button pButton type="button" icon="pi pi-pencil"
+                class="p-button-rounded p-button-text p-button-info action-btn"
+                pTooltip="Edit category" tooltipPosition="top"
+                (click)="openEdit(category)"></button>
+
+              <button pButton type="button"
+                [icon]="category.active ? 'pi pi-ban' : 'pi pi-check-circle'"
+                class="p-button-rounded p-button-text action-btn"
+                [ngClass]="category.active ? 'p-button-warning' : 'p-button-success'"
+                [pTooltip]="category.active ? 'Deactivate' : 'Activate'" tooltipPosition="top"
+                (click)="toggleStatus(category)"></button>
+
+              <button pButton type="button" icon="pi pi-trash"
+                class="p-button-rounded p-button-text p-button-danger action-btn"
+                pTooltip="Delete category" tooltipPosition="top"
+                [disabled]="category.productCount > 0"
+                [pTooltip]="category.productCount > 0 ? 'Cannot delete: has linked products' : 'Delete category'"
+                (click)="confirmDelete(category)"></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="9">
+            <div class="empty-state">
+              <div class="empty-icon">
+                <i class="pi pi-inbox"></i>
+              </div>
+              <h3>No categories found</h3>
+              <p>
+                @if (hasActiveFilters) {
+                Try adjusting your search or filter criteria.
+                <button pButton type="button" label="Clear Filters" class="p-button-link"
+                  (click)="clearFilters()"></button>
+                } @else {
+                No categories have been registered yet.
+                }
+              </p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+    </p-table>
+  </div>
+</div>
+
+<p-dialog [visible]="editDialogVisible()" (visibleChange)="editDialogVisible.set($event)"
+  [modal]="true" [closable]="true" [draggable]="false" [resizable]="false"
+  [style]="{ width: '560px' }" styleClass="edit-category-dialog"
+  [header]="'Edit Category — ' + (selectedCategory()?.categoryName ?? '')"
+  (onHide)="closeDialog()">
+
+  <form [formGroup]="editForm" class="edit-form" novalidate>
+
+    <div class="form-row">
+      <div class="form-field">
+        <label for="edit-code">Category Code <span class="required">*</span></label>
+        <input id="edit-code" pInputText formControlName="categoryCode" placeholder="e.g. CAT-001"
+          [class.ng-invalid]="fieldError('categoryCode', 'edit')"
+          [class.ng-dirty]="fieldError('categoryCode', 'edit')" />
+        @if (fieldError('categoryCode', 'edit')) {
+        <small class="field-error">{{ fieldErrorMsg('categoryCode', 'edit') }}</small>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="edit-name">Category Name <span class="required">*</span></label>
+        <input id="edit-name" pInputText formControlName="categoryName"
+          placeholder="Enter category name"
+          [class.ng-invalid]="fieldError('categoryName', 'edit')"
+          [class.ng-dirty]="fieldError('categoryName', 'edit')" />
+        @if (fieldError('categoryName', 'edit')) {
+        <small class="field-error">{{ fieldErrorMsg('categoryName', 'edit') }}</small>
+        }
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label for="edit-desc">Description</label>
+      <textarea id="edit-desc" pTextarea formControlName="description"
+        placeholder="Enter a short description…" rows="3" class="w-full"
+        [class.ng-invalid]="fieldError('description', 'edit')"
+        [class.ng-dirty]="fieldError('description', 'edit')"></textarea>
+      @if (fieldError('description', 'edit')) {
+      <small class="field-error">{{ fieldErrorMsg('description', 'edit') }}</small>
+      }
+    </div>
+
+    <div class="form-row">
+      <div class="form-field">
+        <label>Linked Products</label>
+        <div class="stat-display">
+          <i class="pi pi-box"></i>
+          <span>{{ selectedCategory()?.productCount ?? 0 }} products linked</span>
+        </div>
+      </div>
+      <div class="form-field">
+        <label>Sub-Categories</label>
+        <div class="stat-display">
+          <i class="pi pi-sitemap"></i>
+          <span>{{ selectedCategory()?.subCategoryCount ?? 0 }} sub-categories</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-field toggle-field">
+      <label>Category Status</label>
+      <div class="toggle-row">
+        <p-toggleswitch formControlName="active" />
+        <span class="toggle-label">
+          {{ editForm.get('active')?.value ? 'Active — visible in system' : 'Inactive — hidden from operations' }}
+        </span>
+      </div>
+    </div>
+
+  </form>
+
+  <ng-template pTemplate="footer">
+    <div class="dialog-footer">
+      <button pButton type="button" label="Cancel" icon="pi pi-times"
+        class="p-button-outlined p-button-secondary" (click)="closeDialog()"
+        [disabled]="saving()"></button>
+      <button pButton type="button" label="Save Changes" icon="pi pi-check"
+        class="p-button-primary" (click)="saveCategory()" [loading]="saving()"></button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<p-dialog [visible]="addDialogVisible()" (visibleChange)="addDialogVisible.set($event)"
+  [modal]="true" [closable]="true" [draggable]="false" [resizable]="false"
+  [style]="{ width: '560px' }" styleClass="add-category-dialog" header="Add New Category"
+  (onHide)="closeAddDialog()">
+
+  <form [formGroup]="addForm" class="add-form" novalidate>
+
+    <div class="form-row">
+      <div class="form-field">
+        <label for="add-code">Category Code <span class="required">*</span></label>
+        <input id="add-code" pInputText formControlName="categoryCode" placeholder="e.g. CAT-001"
+          [class.ng-invalid]="fieldError('categoryCode', 'add')"
+          [class.ng-dirty]="fieldError('categoryCode', 'add')" />
+        @if (fieldError('categoryCode', 'add')) {
+        <small class="field-error">{{ fieldErrorMsg('categoryCode', 'add') }}</small>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="add-name">Category Name <span class="required">*</span></label>
+        <input id="add-name" pInputText formControlName="categoryName"
+          placeholder="Enter category name"
+          [class.ng-invalid]="fieldError('categoryName', 'add')"
+          [class.ng-dirty]="fieldError('categoryName', 'add')" />
+        @if (fieldError('categoryName', 'add')) {
+        <small class="field-error">{{ fieldErrorMsg('categoryName', 'add') }}</small>
+        }
+      </div>
+    </div>
+
+    <div class="form-field">
+      <label for="add-desc">Description</label>
+      <textarea id="add-desc" pTextarea formControlName="description"
+        placeholder="Enter a short description…" rows="3" class="w-full"></textarea>
+    </div>
+
+    <div class="form-field">
+      <label for="add-status">Status <span class="required">*</span></label>
+      <p-select inputId="add-status" [options]="statusFormOptions" optionLabel="label"
+        optionValue="value" formControlName="active" placeholder="Select status"
+        [class.ng-invalid]="fieldError('active', 'add')"
+        [class.ng-dirty]="fieldError('active', 'add')" styleClass="w-full" />
+      @if (fieldError('active', 'add')) {
+      <small class="field-error">{{ fieldErrorMsg('active', 'add') }}</small>
+      }
+    </div>
+
+  </form>
+
+  <ng-template pTemplate="footer">
+    <div class="dialog-footer">
+      <button pButton type="button" label="Cancel" icon="pi pi-times"
+        class="p-button-outlined p-button-secondary" (click)="closeAddDialog()"
+        [disabled]="saving()"></button>
+      <button pButton type="button" label="Add Category" icon="pi pi-check"
+        class="p-button-primary" (click)="createCategory()" [loading]="saving()"></button>
+    </div>
+  </ng-template>
+</p-dialog>

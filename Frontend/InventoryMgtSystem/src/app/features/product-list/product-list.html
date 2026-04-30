@@ -87,7 +87,6 @@
         </tr>
       </ng-template>
 
-      <!-- ── Skeleton loading ── -->
       <ng-template pTemplate="loadingbody">
         @for (row of skeletonRows; track $index) {
         <tr>
@@ -98,7 +97,6 @@
         }
       </ng-template>
 
-      <!-- ── Body ── -->
       <ng-template pTemplate="body" let-product>
         <tr class="product-row">
           <td class="text-muted id-cell">{{ product.id }}</td>
@@ -107,7 +105,6 @@
             <span class="sku-badge">{{ product.sku }}</span>
           </td>
 
-          <!-- Product name + icon -->
           <td>
             <div class="product-name-cell">
               <div class="product-icon" [style.background]="iconColor(product.productName)">

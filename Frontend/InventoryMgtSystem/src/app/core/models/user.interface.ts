@@ -7,6 +7,7 @@ export interface User {
   phone?: string;
   username:string;
   active: string;
+  Activebool:boolean;
   roleId?: number;
   role : string
   epF_No?: string;
@@ -61,4 +62,23 @@ export interface PagedUsersResponse {
 export interface Role {
   id: number;
   name: string;
+}
+
+export interface ChangePasswordDto {
+  userId: number;
+  currentPassword: string;
+  newPassword: string;
+}
+
+export interface UserProfile {
+  status: any;
+  id: number;
+  name: string;
+  email: string;
+  phone?: string;
+  username:string;
+  active: string;
+  roleId?: number;
+  role : string
+  epF_No?: string;
 }

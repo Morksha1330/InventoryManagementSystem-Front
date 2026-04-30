@@ -1,37 +1,36 @@
-// src/app/features/products/product-list/product-list.component.ts
-
-import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Component, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ImportsModule } from '../../imports/imports'; // adjust path as needed
-import { ProductService } from '../../core/services/product.service';
+import { CategoryService } from '../../core/services/category.service';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { Table } from 'primeng/table';
 import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
-import { ProductDTO, CategoryOption, ProductFilterDto } from '../../core/models/product.interface';
+import { CategoryDTO, CategoryFilterDto } from '../../core/models/category.interface';
 import { StatusOption } from '../../core/models/user.interface';
 
 @Component({
-  selector: 'app-product-list',
+  selector: 'app-category-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, ImportsModule, CurrencyPipe, DatePipe],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, ImportsModule, DatePipe],
   providers: [ConfirmationService],
-  templateUrl: './product-list.html',
-  styleUrl: './product-list.css',
+  templateUrl: './category-list.html',
+  styleUrl: './category-list.css',
 })
-export class ProductList implements OnInit, OnDestroy {
+export class CategoryList implements OnInit, OnDestroy {
   @ViewChild('dt') dt!: Table;
 
-  products = signal<ProductDTO[]>([]);
+  // ── state ────────────────────────────────────────────────────────────────
+  categories = signal<CategoryDTO[]>([]);
   totalRecords = signal<number>(0);
   loading = signal<boolean>(false);
   editDialogVisible = signal<boolean>(false);
   addDialogVisible = signal<boolean>(false);
   saving = signal<boolean>(false);
-  selectedProduct = signal<ProductDTO | null>(null);
+  selectedCategory = signal<CategoryDTO | null>(null);
 
+  // ── filter state ─────────────────────────────────────────────────────────
   searchTerm = signal<string>('');
-  selectedCategoryFilter = signal<number | null>(null);
   selectedStatusFilter = signal<boolean | null>(null);
 
   currentPage = signal<number>(1);
@@ -42,15 +41,11 @@ export class ProductList implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private searchSubject = new Subject<string>();
 
+  // ── forms ─────────────────────────────────────────────────────────────────
   editForm!: FormGroup;
   addForm!: FormGroup;
 
   // ── options ──────────────────────────────────────────────────────────────
-  // Replace with your real categories (or load from an API)
-  categoryOptions: CategoryOption[] = [];
-
-  categoryFormOptions = [];
-
   statusOptions: StatusOption[] = [
     { label: 'All Status', value: null },
     { label: 'Active', value: true },
@@ -68,8 +63,10 @@ export class ProductList implements OnInit, OnDestroy {
     { label: '50 / page', value: 50 },
   ];
 
+  skeletonRows = Array(8).fill(null);
+
   constructor(
-    private productService: ProductService,
+    private categoryService: CategoryService,
     private fb: FormBuilder,
     private messageService: MessageService,
     private confirmationService: ConfirmationService,
@@ -78,14 +75,15 @@ export class ProductList implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.buildEditForm();
     this.buildAddForm();
-    this.loadProducts();
+    this.loadCategories();
 
+    // Debounced search
     this.searchSubject
       .pipe(debounceTime(400), distinctUntilChanged(), takeUntil(this.destroy$))
       .subscribe((term) => {
         this.searchTerm.set(term);
         this.currentPage.set(1);
-        this.loadProducts();
+        this.loadCategories();
       });
   }
 
@@ -94,57 +92,55 @@ export class ProductList implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  // ── form builders ─────────────────────────────────────────────────────────
 
-  private buildEditForm(product?: ProductDTO): void {
+  private buildEditForm(category?: CategoryDTO): void {
     this.editForm = this.fb.group({
-      sku: [product?.sku ?? '', [Validators.required, Validators.minLength(2)]],
-      productName: [product?.productName ?? '', [Validators.required, Validators.minLength(2)]],
-      categoryId: [product?.categoryId ?? null, Validators.required],
-      unitPrice: [product?.unitPrice ?? null, [Validators.required, Validators.min(0)]],
-      active: [product?.active ?? true],
+      categoryCode: [category?.categoryCode ?? '', [Validators.required, Validators.minLength(2)]],
+      categoryName: [category?.categoryName ?? '', [Validators.required, Validators.minLength(2)]],
+      description: [category?.description ?? ''],
+      active: [category?.active ?? true],
     });
   }
 
   private buildAddForm(): void {
     this.addForm = this.fb.group({
-      sku: ['', [Validators.required, Validators.minLength(2)]],
-      productName: ['', [Validators.required, Validators.minLength(2)]],
-      categoryId: [null, Validators.required],
-      unitPrice: [null, [Validators.required, Validators.min(0)]],
-      totalQuantity: [0, [Validators.required, Validators.min(0)]],
+      categoryCode: ['', [Validators.required, Validators.minLength(2)]],
+      categoryName: ['', [Validators.required, Validators.minLength(2)]],
+      description: [''],
       active: [null, Validators.required],
     });
   }
 
+  // ── data loading ─────────────────────────────────────────────────────────
 
-  loadProducts(): void {
+  loadCategories(): void {
     this.loading.set(true);
 
-    const filter: ProductFilterDto = {
+    const filter: CategoryFilterDto = {
       pageNumber: this.currentPage(),
       pageSize: this.pageSize(),
       searchTerm: this.searchTerm() || undefined,
-      categoryId: this.selectedCategoryFilter() ?? undefined,
       active: this.selectedStatusFilter() ?? undefined,
       sortBy: this.sortField(),
       sortOrder: this.sortOrder(),
     };
 
-    this.productService
-      .getPagedProducts(filter)
+    this.categoryService
+      .getPagedCategories(filter)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
           if (res.success) {
-            this.products.set(res.data);
+            this.categories.set(res.data);
             this.totalRecords.set(res.pagination.totalCount);
           } else {
-            this.showError('Failed to load products', res.message);
+            this.showError('Failed to load categories', res.message);
           }
           this.loading.set(false);
         },
         error: () => {
-          this.showError('Error', 'Could not fetch products. Please try again.');
+          this.showError('Error', 'Could not fetch categories. Please try again.');
           this.loading.set(false);
         },
       });
@@ -155,14 +151,14 @@ export class ProductList implements OnInit, OnDestroy {
   onPage(event: any): void {
     this.currentPage.set(event.first / event.rows + 1);
     this.pageSize.set(event.rows);
-    this.loadProducts();
+    this.loadCategories();
   }
 
   onSort(event: any): void {
     this.sortField.set(event.field);
     this.sortOrder.set(event.order === 1 ? 'ASC' : 'DESC');
     this.currentPage.set(1);
-    this.loadProducts();
+    this.loadCategories();
   }
 
   onSearchInput(event: Event): void {
@@ -170,30 +166,23 @@ export class ProductList implements OnInit, OnDestroy {
     this.searchSubject.next(value);
   }
 
-  onCategoryFilterChange(value: number | null): void {
-    this.selectedCategoryFilter.set(value);
-    this.currentPage.set(1);
-    this.loadProducts();
-  }
-
   onStatusFilterChange(value: boolean | null): void {
     this.selectedStatusFilter.set(value);
     this.currentPage.set(1);
-    this.loadProducts();
+    this.loadCategories();
   }
 
   onPageSizeChange(value: number): void {
     this.pageSize.set(value);
     this.currentPage.set(1);
-    this.loadProducts();
+    this.loadCategories();
   }
 
   clearFilters(): void {
     this.searchTerm.set('');
-    this.selectedCategoryFilter.set(null);
     this.selectedStatusFilter.set(null);
     this.currentPage.set(1);
-    this.loadProducts();
+    this.loadCategories();
   }
 
   // ── dialog actions ────────────────────────────────────────────────────────
@@ -208,58 +197,58 @@ export class ProductList implements OnInit, OnDestroy {
     this.addForm.reset();
   }
 
-  openEdit(product: ProductDTO): void {
-    this.selectedProduct.set(product);
-    this.buildEditForm(product);
+  openEdit(category: CategoryDTO): void {
+    this.selectedCategory.set(category);
+    this.buildEditForm(category);
     this.editDialogVisible.set(true);
   }
 
   closeDialog(): void {
     this.editDialogVisible.set(false);
-    this.selectedProduct.set(null);
+    this.selectedCategory.set(null);
     this.editForm.reset();
   }
 
   // ── CRUD operations ───────────────────────────────────────────────────────
 
-  saveProduct(): void {
+  saveCategory(): void {
     if (this.editForm.invalid) {
       this.editForm.markAllAsTouched();
       return;
     }
 
-    const product = this.selectedProduct();
-    if (!product) return;
+    const category = this.selectedCategory();
+    if (!category) return;
 
     this.saving.set(true);
 
-    const payload: ProductDTO = {
-      ...product,           // keep id, totalQuantity, createdDate, categoryName
+    const payload: CategoryDTO = {
+      ...category,           // keep id, productCount, subCategoryCount, createdDate
       ...this.editForm.value,
     };
 
-    this.productService
-      .updateProduct(payload)
+    this.categoryService
+      .updateCategory(payload)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
           if (res.success) {
-            this.showSuccess('Product updated successfully');
+            this.showSuccess('Category updated successfully');
             this.closeDialog();
-            this.loadProducts();
+            this.loadCategories();
           } else {
             this.showError('Update failed', res.message);
           }
           this.saving.set(false);
         },
         error: () => {
-          this.showError('Error', 'Could not update product. Please try again.');
+          this.showError('Error', 'Could not update category. Please try again.');
           this.saving.set(false);
         },
       });
   }
 
-  createProduct(): void {
+  createCategory(): void {
     if (this.addForm.invalid) {
       this.addForm.markAllAsTouched();
       return;
@@ -267,103 +256,95 @@ export class ProductList implements OnInit, OnDestroy {
 
     this.saving.set(true);
 
-    const payload: ProductDTO = {
+    const payload: CategoryDTO = {
       id: 0,
-      categoryName: '',
+      productCount: 0,
+      subCategoryCount: 0,
       createdDate: undefined,
       ...this.addForm.value,
     };
 
-    this.productService
-      .addProduct(payload)
+    this.categoryService
+      .addCategory(payload)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
           if (res.success) {
-            this.showSuccess('Product created successfully');
+            this.showSuccess('Category created successfully');
             this.closeAddDialog();
-            this.loadProducts();
+            this.loadCategories();
           } else {
             this.showError('Create failed', res.message);
           }
           this.saving.set(false);
         },
         error: () => {
-          this.showError('Error', 'Could not create product. Please try again.');
+          this.showError('Error', 'Could not create category. Please try again.');
           this.saving.set(false);
         },
       });
   }
 
-  confirmDelete(product: ProductDTO): void {
+  confirmDelete(category: CategoryDTO): void {
+    if (category.productCount > 0) return; // guard: button is disabled, but safety check
+
     this.confirmationService.confirm({
-      message: `Are you sure you want to delete <strong>${product.productName}</strong>? This action cannot be undone.`,
+      message: `Are you sure you want to delete <strong>${category.categoryName}</strong>? This action cannot be undone.`,
       header: 'Confirm Delete',
       icon: 'pi pi-exclamation-triangle',
       acceptButtonStyleClass: 'p-button-danger',
-      accept: () => this.deleteProduct(product),
+      accept: () => this.deleteCategory(category),
     });
   }
 
-  private deleteProduct(product: ProductDTO): void {
-    this.productService
-      .deleteProduct(product.id)
+  private deleteCategory(category: CategoryDTO): void {
+    this.categoryService
+      .deleteCategory(category.id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
           if (res.success) {
-            this.showSuccess(`"${product.productName}" deleted successfully`);
-            this.loadProducts();
+            this.showSuccess(`"${category.categoryName}" deleted successfully`);
+            this.loadCategories();
           } else {
             this.showError('Delete failed', res.message);
           }
         },
-        error: () => this.showError('Error', 'Could not delete product.'),
+        error: () => this.showError('Error', 'Could not delete category.'),
       });
   }
 
-  toggleStatus(product: ProductDTO): void {
-    const updated: ProductDTO = { ...product, active: !product.active };
+  toggleStatus(category: CategoryDTO): void {
+    const updated: CategoryDTO = { ...category, active: !category.active };
 
-    this.productService
-      .updateProduct(updated)
+    this.categoryService
+      .updateCategory(updated)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
           if (res.success) {
             const status = updated.active ? 'activated' : 'deactivated';
-            this.showSuccess(`"${product.productName}" ${status}`);
-            this.loadProducts();
+            this.showSuccess(`"${category.categoryName}" ${status}`);
+            this.loadCategories();
           } else {
             this.showError('Toggle failed', res.message);
           }
         },
-        error: () => this.showError('Error', 'Could not toggle product status.'),
+        error: () => this.showError('Error', 'Could not toggle category status.'),
       });
   }
 
   // ── helpers ───────────────────────────────────────────────────────────────
 
   get hasActiveFilters(): boolean {
-    return (
-      !!this.searchTerm() ||
-      this.selectedCategoryFilter() !== null ||
-      this.selectedStatusFilter() !== null
-    );
+    return !!this.searchTerm() || this.selectedStatusFilter() !== null;
   }
 
-  /** CSS class for qty cell based on stock level */
-  stockClass(qty: number): string {
-    if (qty === 0) return 'stock-out';
-    if (qty <= 10) return 'stock-low';
-    return 'stock-ok';
-  }
-
-  /** Deterministic background colour for product icon from product name */
+  /** Deterministic background colour for category icon from category name */
   iconColor(name: string): string {
     const palette = [
-      '#0ea5e9', '#6366f1', '#8b5cf6', '#ec4899',
-      '#f59e0b', '#10b981', '#ef4444', '#14b8a6',
+      '#10b981', '#0ea5e9', '#8b5cf6', '#f59e0b',
+      '#ec4899', '#6366f1', '#14b8a6', '#ef4444',
     ];
     let hash = 0;
     for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
@@ -378,8 +359,6 @@ export class ProductList implements OnInit, OnDestroy {
     this.messageService.add({ severity: 'error', summary, detail: detail ?? '', life: 4000 });
   }
 
-  skeletonRows = Array(8).fill(null);
-
   // ── form validation helpers ────────────────────────────────────────────────
 
   fieldError(field: string, formType: 'edit' | 'add' = 'edit'): boolean {
@@ -391,7 +370,6 @@ export class ProductList implements OnInit, OnDestroy {
     const ctrl = formType === 'edit' ? this.editForm?.get(field) : this.addForm?.get(field);
     if (!ctrl?.errors) return '';
     if (ctrl.errors['required']) return `${this.fieldLabel(field)} is required`;
-    if (ctrl.errors['min']) return `Value must be 0 or greater`;
     if (ctrl.errors['minlength'])
       return `Minimum ${ctrl.errors['minlength'].requiredLength} characters`;
     return 'Invalid value';
@@ -399,11 +377,9 @@ export class ProductList implements OnInit, OnDestroy {
 
   private fieldLabel(field: string): string {
     const map: Record<string, string> = {
-      sku: 'SKU',
-      productName: 'Product Name',
-      categoryId: 'Category',
-      unitPrice: 'Unit Price',
-      totalQuantity: 'Quantity',
+      categoryCode: 'Category Code',
+      categoryName: 'Category Name',
+      description: 'Description',
       active: 'Status',
     };
     return map[field] ?? field;

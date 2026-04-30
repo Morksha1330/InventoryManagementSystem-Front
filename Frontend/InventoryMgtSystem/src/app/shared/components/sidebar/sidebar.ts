@@ -67,9 +67,8 @@ export class Sidebar {
         roles: ['Admin'],
         children: [
           { routeLink: 'user-list', icon: 'pi pi-users', label: 'Users', roles: ['Admin'] },
-          // { routeLink: 'edit-users', icon: 'pi pi-pencil', label: 'Edit Users', roles: ['Admin'] },
           { routeLink: 'profile', icon: 'pi pi-user', label: 'My Profile', roles: ['Viewer', 'Admin', 'Manager', 'Operator'] },
-          //{ routeLink: 'createuser', icon: 'pi pi-plus', label: 'Register Users', roles: ['Admin'] }
+          { routeLink: 'change-password', icon: 'pi pi-key', label: 'Change Password', roles: ['Viewer', 'Admin', 'Manager', 'Operator'] }
         ]
       },
       {
@@ -88,7 +87,7 @@ export class Sidebar {
         roles: ['Viewer', 'Admin', 'Manager', 'Operator'],
         children: [
           { routeLink: 'customers', icon: 'pi pi-users', label: 'Customers', roles: ['Viewer', 'Admin', 'Manager', 'Operator'] },
-          { routeLink: 'sales-products', icon: 'pi pi-box', label: 'Products', roles: ['Viewer', 'Admin', 'Manager', 'Operator'] }
+          { routeLink: 'products', icon: 'pi pi-box', label: 'Products', roles: ['Viewer', 'Admin', 'Manager', 'Operator'] }
         ]
       },
       {
@@ -98,7 +97,7 @@ export class Sidebar {
         children: [
           { routeLink: 'suppliers', icon: 'pi pi-truck', label: 'Supplier List', roles: ['Viewer', 'Admin', 'Manager', 'Operator'] },
           { routeLink: 'purchase-orders', icon: 'pi pi-shopping-cart', label: 'Purchase Orders', roles: ['Viewer', 'Admin', 'Manager', 'Operator'] },
-          { routeLink: 'create-purchase', icon: 'pi pi-plus', label: 'Create Purchase', roles: ['Viewer', 'Admin', 'Manager', 'Operator'] }
+          // { routeLink: 'create-purchase', icon: 'pi pi-plus', label: 'Create Purchase', roles: ['Viewer', 'Admin', 'Manager', 'Operator'] }
         ]
       },
       {

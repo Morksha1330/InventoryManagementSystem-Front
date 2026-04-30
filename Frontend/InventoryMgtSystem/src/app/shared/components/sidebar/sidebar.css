@@ -64,7 +64,6 @@
   width: var(--sidebar-collapsed);
 }
 
-/* Mobile behavior */
 @media (max-width: 768px) {
   .sidebar {
     width: 85vw;
@@ -72,9 +71,8 @@
   }
 }
 
-/* ── Core Sidenav ── */
 .app-sidenav {
-  background: linear-gradient(180deg, #0d9488 0%, #0f766e 100%);
+  background: linear-gradient(180deg, #2e2a34 0%, #3d0960 100%);
   color: white;
   box-shadow: 4px 0 10px rgba(0, 0, 0, 0.15);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -164,7 +162,7 @@
 
     i {
       font-size: clamp(20px, 2.5vw, 24px);
-      color: #0d9488;
+      color: #aa7fc6;
     }
   }
 
@@ -212,7 +210,6 @@
   }
 }
 
-/* ── Navigation List ── */
 .nav-list {
   flex: 1;
   overflow-y: auto;
@@ -238,7 +235,6 @@
   }
 }
 
-/* ── Nav Item (top-level, no children) ── */
 .nav-item {
   display: flex !important;
   align-items: center !important;
@@ -268,7 +264,6 @@
     }
   }
 
-  /* Active: parent-level — strong, prominent */
   &.active {
     background: rgba(255, 255, 255, 0.22) !important;
     backdrop-filter: blur(10px);
@@ -326,7 +321,6 @@
   }
 }
 
-/* ── Parent item WITH children ── */
 .nav-item-with-children {
   width: 100%;
   margin: 2px 0;
@@ -410,7 +404,6 @@
   }
 }
 
-/* ── Chevron icon ── */
 .chevron-icon {
   font-size: 11px !important;
   width: auto !important;
@@ -451,7 +444,6 @@
   }
 }
 
-/* ── Submenu items ── */
 .submenu-item {
   display: flex !important;
   align-items: center;
@@ -545,7 +537,6 @@
   letter-spacing: 0.01em;
 }
 
-/* Collapsed state */
 .collapsed .parent-item {
   justify-content: center;
 
@@ -558,7 +549,6 @@
   display: none;
 }
 
-/* ── User Section ── */
 .user-section {
   margin-top: auto;
   flex-shrink: 0;
@@ -664,7 +654,6 @@
   }
 }
 
-/* ── Main Content ── */
 .main-content {
   background: #f9fafb;
   height: 100vh;
@@ -672,9 +661,6 @@
   overflow-x: hidden;
 }
 
-/* ── Responsive ── */
-
-/* Desktop (1024px+) */
 @media (min-width: 1024px) {
   .app-sidenav {
     &.expanded {
@@ -687,7 +673,6 @@
   }
 }
 
-/* Tablet (768px - 1023px) */
 @media (min-width: 768px) and (max-width: 1023px) {
   .app-sidenav {
     &.expanded {
@@ -716,7 +701,6 @@
   }
 }
 
-/* Mobile Landscape & Small Tablet (641px - 767px) */
 @media (min-width: 641px) and (max-width: 767px) {
   .sidebar-container {
     ::ng-deep {
@@ -740,7 +724,6 @@
   }
 }
 
-/* Mobile (max 640px) */
 @media (max-width: 640px) {
   .sidebar-container {
     ::ng-deep {
@@ -814,7 +797,6 @@
   }
 }
 
-/* Extra Small Mobile (max 375px) */
 @media (max-width: 375px) {
   .app-sidenav {
     &.expanded {
@@ -900,7 +882,6 @@
   }
 }
 
-/* ── Material Design Overrides ── */
 ::ng-deep {
   .mat-mdc-list-item {
     &.nav-item {
@@ -941,7 +922,6 @@
   }
 }
 
-/* ── Animations ── */
 @keyframes slideIn {
   from {
     opacity: 0;
@@ -957,7 +937,6 @@
   animation: slideIn 0.3s ease;
 }
 
-/* ── Accessibility ── */
 @media (prefers-reduced-motion: reduce) {
   .app-sidenav,
   .nav-item,
@@ -974,7 +953,6 @@
   }
 }
 
-/* ── High Contrast ── */
 @media (prefers-contrast: high) {
   .app-sidenav {
     border-right: 2px solid white;
@@ -1004,7 +982,6 @@
   }
 }
 
-/* ── MDC/Material global row fix ── */
 ::ng-deep .mat-mdc-list-item,
 ::ng-deep .mdc-list-item__content,
 ::ng-deep .mat-mdc-list-item-unscoped-content {
@@ -1014,7 +991,6 @@
   gap: 12px;
 }
 
-/* ── Kill MDC state layers completely ── */
 ::ng-deep .mat-mdc-list-item,
 ::ng-deep .mdc-list-item {
   --mdc-list-list-item-focus-state-layer-opacity: 0 !important;

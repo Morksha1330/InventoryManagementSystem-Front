@@ -6,6 +6,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment.development';
 import {
   AddUserDto,
+  ChangePasswordDto,
   PagedUsersResponse,
   User,
   UserFilterDto,
@@ -65,9 +66,19 @@ export class UserService {
     return this.http.patch<HttpResponseData<User>>(`${this.userUrl}/${id}/toggle-status`, {});
   }
 
-  // ── legacy helpers kept for backward-compat ──────────────────────────────
-
   getUsers(): Observable<User[]> {
     return this.http.get<User[]>(`${this.homeUrl}/Users`);
   }
+
+  changePassword(payload: ChangePasswordDto): Observable<HttpResponseData<boolean>> {
+  return this.http.post<HttpResponseData<boolean>>(`${this.userUrl}/changePassword`,payload);
+}
+
+getLoggedInUserProfile(): Observable<HttpResponseData<User>> {
+    return this.http.get<HttpResponseData<User>>(`${this.userUrl}/profile`);
+  }
+ 
+// updateUser(id: number, payload: Partial<User>): Observable<HttpResponseData<User>> {
+//   return this.http.put<HttpResponseData<User>>(`${this.userUrl}/${id}`, payload);
+// }
 }

@@ -11,6 +11,10 @@ import { Unauthorized } from './shared/components/unauthorized/unauthorized';
 import { EditUser } from './features/edit-user/edit-user';
 import { GuestGuard } from './core/guards/guest.guard';
 import { AuthGuard } from './core/guards/auth.guard';
+import { ChangePasswordComponent } from './features/change-password/change-password';
+import { CategoryList } from './features/category-list/category-list';
+import { Profile } from './features/profile/profile';
+
 
 
 // Auth Guards (you'll need to create these)
@@ -77,15 +81,15 @@ export const routes: Routes = [
         }
         // canActivate: [RoleGuard]
       },
-    //   {
-    //     path: 'profile',
-    //     component: Profile,
-    //     data: { 
-    //       title: 'My Profile',
-    //       roles: ['Viewer', 'Admin', 'Manager', 'Operator'],
-    //       showHeader: true 
-    //     }
-    //   },
+      {
+        path: 'profile',
+        component: Profile,
+        data: { 
+          title: 'My Profile',
+          roles: ['Viewer', 'Admin', 'Manager', 'Operator'],
+          showHeader: false 
+        }
+      },
       {
         path: 'createuser',
         component: Createuser,
@@ -107,15 +111,15 @@ export const routes: Routes = [
           showHeader: false 
         }
       },
-    //   {
-    //     path: 'categories',
-    //     component: CategoryList,
-    //     data: { 
-    //       title: 'Category List',
-    //       roles: ['Viewer', 'Admin', 'Manager', 'Operator'],
-    //       showHeader: true 
-    //     }
-    //   },
+      {
+        path: 'categories',
+        component: CategoryList,
+        data: { 
+          title: 'Category List',
+          roles: ['Viewer', 'Admin', 'Manager', 'Operator'],
+          showHeader: false 
+        }
+      },
     //   {
     //     path: 'stock-history',
     //     component: StockHistory,
@@ -133,7 +137,17 @@ export const routes: Routes = [
         data: { 
           title: 'Customers',
           roles: ['Viewer', 'Admin', 'Manager', 'Operator'],
-          showHeader: true 
+          showHeader: false 
+        }
+      },
+
+      {
+        path: 'change-password',
+        component: ChangePasswordComponent,
+        data: { 
+          title: 'Change Password',
+          roles: ['Viewer', 'Admin', 'Manager', 'Operator'],
+          showHeader: false 
         }
       },
     //   {
