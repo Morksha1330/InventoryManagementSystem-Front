@@ -14,6 +14,7 @@ import { AuthGuard } from './core/guards/auth.guard';
 import { ChangePasswordComponent } from './features/change-password/change-password';
 import { CategoryList } from './features/category-list/category-list';
 import { Profile } from './features/profile/profile';
+import { SupplierService } from './core/services/supplier.service';
 
 
 
@@ -86,7 +87,7 @@ export const routes: Routes = [
         component: Profile,
         data: { 
           title: 'My Profile',
-          roles: ['Viewer', 'Admin', 'Manager', 'Operator'],
+          roles: ['Store Keeper', 'Admin', 'Manager', 'Operator'],
           showHeader: false 
         }
       },
@@ -161,15 +162,15 @@ export const routes: Routes = [
     //   },
 
     //   // Supplier Management Routes
-    //   {
-    //     path: 'suppliers',
-    //     component: SupplierList,
-    //     data: { 
-    //       title: 'Supplier List',
-    //       roles: ['Viewer', 'Admin', 'Manager', 'Operator'],
-    //       showHeader: true 
-    //     }
-    //   },
+      {
+        path: 'suppliers',
+        component: SupplierService,
+        data: { 
+          title: 'Supplier List',
+          roles: ['Viewer', 'Admin', 'Manager', 'Operator'],
+          showHeader: true 
+        }
+      },
     //   {
     //     path: 'purchase-orders',
     //     component: PurchaseOrders,
