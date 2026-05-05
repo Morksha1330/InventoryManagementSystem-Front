@@ -1,0 +1,270 @@
+
+<div class="supplier-list-page">
+
+  <div class="page-header">
+    <div class="header-left">
+      <div class="header-icon">
+        <i class="pi pi-truck"></i>
+      </div>
+      <div>
+        <h5 class="page-title">Supplier Management</h5>
+        <p class="page-subtitle">
+          {{ totalRecords() }} supplier{{ totalRecords() !== 1 ? 's' : '' }} registered
+        </p>
+      </div>
+    </div>
+    <button pButton type="button" label="Add Supplier" icon="pi pi-plus" class="p-button-primary"
+      (click)="openCreate()"></button>
+  </div>
+
+  <div class="filter-bar">
+    <!-- Search -->
+    <p-iconfield class="search-field">
+      <p-inputicon>
+        <i class="pi pi-search"></i>
+      </p-inputicon>
+      <input pInputText type="text" placeholder="Search by name, email, phone…" (input)="onSearchInput($event)"
+        class="search-input" />
+    </p-iconfield>
+
+    <!-- Status Filter -->
+    <p-select [options]="statusOptions" optionLabel="label" optionValue="value" placeholder="All Status"
+      [ngModel]="selectedStatusFilter()" (ngModelChange)="onStatusFilterChange($event)" class="filter-select" />
+
+    <!-- Page Size -->
+    <p-select [options]="pageSizeOptions" optionLabel="label" optionValue="value" [ngModel]="pageSize()"
+      (ngModelChange)="onPageSizeChange($event)" class="filter-select filter-select--sm" />
+
+    <!-- Clear Filters -->
+    @if (hasActiveFilters) {
+    <button pButton type="button" icon="pi pi-filter-slash" label="Clear"
+      class="p-button-outlined p-button-secondary clear-btn" (click)="clearFilters()"
+      pTooltip="Clear all filters"></button>
+    }
+  </div>
+
+  <div class="table-wrapper">
+    <p-table #dt [value]="suppliers()" [rows]="pageSize()" [totalRecords]="totalRecords()" [loading]="loading()"
+      [paginator]="true" [lazy]="true" [rowsPerPageOptions]="[10, 20, 50]" [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} suppliers" [sortMode]="'single'"
+      (onPage)="onPage($event)" (onSort)="onSort($event)" styleClass="p-datatable-gridlines supplier-table"
+      [tableStyle]="{ 'min-width': '860px' }" responsiveLayout="scroll">
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="id" style="width: 60px">#<p-sortIcon field="id" /></th>
+          <th pSortableColumn="supplierName">Name<p-sortIcon field="supplierName" /></th>
+          <th pSortableColumn="supplierEmail">Email<p-sortIcon field="supplierEmail" /></th>
+          <th pSortableColumn="phoneNumber">Phone<p-sortIcon field="phoneNumber" /></th>
+          <th pSortableColumn="address">Address<p-sortIcon field="address" /></th>
+          <th pSortableColumn="active" style="width: 110px">Status<p-sortIcon field="active" /></th>
+          <th style="width: 120px; text-align: center">Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="loadingbody">
+        @for (row of skeletonRows; track $index) {
+        <tr>
+          @for (col of [1,2,3,4,5,6,7]; track col) {
+          <td><p-skeleton height="1.75rem" borderRadius="6px" /></td>
+          }
+        </tr>
+        }
+      </ng-template>
+
+      <ng-template pTemplate="body" let-supplier>
+        <tr class="supplier-row">
+          <td class="text-muted id-cell">{{ supplier.id }}</td>
+
+          <td>
+            <div class="supplier-name-cell">
+              <div class="supplier-avatar" [style.background]="avatarColor(supplier.supplierName)">
+                {{ supplier.supplierName.charAt(0).toUpperCase() }}
+              </div>
+              <span class="supplier-name">{{ supplier.supplierName }}</span>
+            </div>
+          </td>
+
+          <td>
+            <a [href]="'mailto:' + supplier.supplierEmail" class="email-link">{{ supplier.supplierEmail }}</a>
+          </td>
+
+          <td class="mono-text text-muted">{{ supplier.phoneNumber || '—' }}</td>
+
+          <td class="address-cell">{{ supplier.address || '—' }}</td>
+
+          <td>
+            <p-tag [value]="supplier.active ? 'Active' : 'Inactive'"
+              [severity]="supplier.active ? 'success' : 'danger'" [rounded]="true" />
+          </td>
+
+          <td class="actions-cell">
+            <div class="action-buttons">
+              <button pButton type="button" icon="pi pi-pencil"
+                class="p-button-rounded p-button-text p-button-info action-btn" pTooltip="Edit supplier"
+                tooltipPosition="top" (click)="openEdit(supplier)"></button>
+
+              <button pButton type="button" [icon]="supplier.active ? 'pi pi-ban' : 'pi pi-check-circle'"
+                class="p-button-rounded p-button-text action-btn"
+                [ngClass]="supplier.active ? 'p-button-warning' : 'p-button-success'"
+                [pTooltip]="supplier.active ? 'Deactivate' : 'Activate'" tooltipPosition="top"
+                (click)="toggleStatus(supplier)"></button>
+
+              <button pButton type="button" icon="pi pi-trash"
+                class="p-button-rounded p-button-text p-button-danger action-btn" pTooltip="Delete supplier"
+                tooltipPosition="top" (click)="confirmDelete(supplier)"></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="7">
+            <div class="empty-state">
+              <div class="empty-icon">
+                <i class="pi pi-inbox"></i>
+              </div>
+              <h3>No suppliers found</h3>
+              <p>
+                @if (hasActiveFilters) {
+                Try adjusting your search or filter criteria.
+                <button pButton type="button" label="Clear Filters" class="p-button-link"
+                  (click)="clearFilters()"></button>
+                } @else {
+                No suppliers have been registered yet.
+                }
+              </p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+    </p-table>
+  </div>
+</div>
+
+<!-- ── Edit Dialog ──────────────────────────────────────────────────────── -->
+<p-dialog [visible]="editDialogVisible()" (visibleChange)="editDialogVisible.set($event)" [modal]="true"
+  [closable]="true" [draggable]="false" [resizable]="false" [style]="{ width: '560px' }"
+  styleClass="edit-supplier-dialog" [header]="'Edit Supplier — ' + (selectedSupplier()?.supplierName ?? '')"
+  (onHide)="closeEditDialog()">
+
+  <form [formGroup]="editForm" class="edit-form" novalidate>
+    <div class="form-row">
+      <div class="form-field">
+        <label for="edit-name">Supplier Name <span class="required">*</span></label>
+        <input id="edit-name" pInputText formControlName="supplierName" placeholder="Enter supplier name"
+          [class.ng-invalid]="fieldError('supplierName')" [class.ng-dirty]="fieldError('supplierName')" />
+        @if (fieldError('supplierName')) {
+        <small class="field-error">{{ fieldErrorMsg('supplierName') }}</small>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="edit-email">Email Address <span class="required">*</span></label>
+        <input id="edit-email" pInputText type="email" formControlName="supplierEmail" placeholder="Enter email"
+          [class.ng-invalid]="fieldError('supplierEmail')" [class.ng-dirty]="fieldError('supplierEmail')" />
+        @if (fieldError('supplierEmail')) {
+        <small class="field-error">{{ fieldErrorMsg('supplierEmail') }}</small>
+        }
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-field">
+        <label for="edit-phone">Phone Number</label>
+        <input id="edit-phone" pInputText formControlName="phoneNumber" placeholder="Phone number (optional)" />
+      </div>
+
+      <div class="form-field">
+        <label for="edit-address">Address</label>
+        <input id="edit-address" pInputText formControlName="address" placeholder="Address (optional)" />
+      </div>
+    </div>
+
+    <div class="form-field toggle-field">
+      <label>Account Status</label>
+      <div class="toggle-row">
+        <p-toggleswitch formControlName="active" />
+        <span class="toggle-label">
+          {{ editForm.get('active')?.value ? 'Active — supplier is enabled' : 'Inactive — supplier is disabled' }}
+        </span>
+      </div>
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <div class="dialog-footer">
+      <button pButton type="button" label="Cancel" icon="pi pi-times" class="p-button-outlined p-button-secondary"
+        (click)="closeEditDialog()" [disabled]="saving()"></button>
+      <button pButton type="button" label="Save Changes" icon="pi pi-check" class="p-button-primary"
+        (click)="saveSupplier()" [loading]="saving()"></button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<!-- ── Add Dialog ───────────────────────────────────────────────────────── -->
+<p-dialog [visible]="addDialogVisible()" (visibleChange)="addDialogVisible.set($event)" [modal]="true"
+  [closable]="true" [draggable]="false" [resizable]="false" [style]="{ width: '560px' }"
+  styleClass="add-supplier-dialog" [header]="'Add New Supplier'" (onHide)="closeAddDialog()">
+
+  <form [formGroup]="addForm" class="add-form" novalidate>
+    <div class="form-row">
+      <div class="form-field">
+        <label for="add-name">Supplier Name <span class="required">*</span></label>
+        <input id="add-name" pInputText formControlName="supplierName" placeholder="Enter supplier name"
+          [class.ng-invalid]="fieldError('supplierName', 'add')" [class.ng-dirty]="fieldError('supplierName', 'add')" />
+        @if (fieldError('supplierName', 'add')) {
+        <small class="field-error">{{ fieldErrorMsg('supplierName', 'add') }}</small>
+        }
+      </div>
+
+      <div class="form-field">
+        <label for="add-email">Email Address <span class="required">*</span></label>
+        <input id="add-email" pInputText type="email" formControlName="supplierEmail" placeholder="Enter email"
+          [class.ng-invalid]="fieldError('supplierEmail', 'add')"
+          [class.ng-dirty]="fieldError('supplierEmail', 'add')" />
+        @if (fieldError('supplierEmail', 'add')) {
+        <small class="field-error">{{ fieldErrorMsg('supplierEmail', 'add') }}</small>
+        }
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-field">
+        <label for="add-phone">Phone Number</label>
+        <input id="add-phone" pInputText formControlName="phoneNumber" placeholder="Phone number (optional)" />
+      </div>
+
+      <div class="form-field">
+        <label for="add-address">Address</label>
+        <input id="add-address" pInputText formControlName="address" placeholder="Address (optional)" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-field">
+        <label for="add-status">Status <span class="required">*</span></label>
+        <p-select inputId="add-status" [options]="statusFormOptions" optionLabel="label" optionValue="value"
+          formControlName="active" placeholder="Select Status" [class.ng-invalid]="fieldError('active', 'add')"
+          [class.ng-dirty]="fieldError('active', 'add')" styleClass="w-full" />
+        @if (fieldError('active', 'add')) {
+        <small class="field-error">{{ fieldErrorMsg('active', 'add') }}</small>
+        }
+      </div>
+    </div>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <div class="dialog-footer">
+      <button pButton type="button" label="Cancel" icon="pi pi-times" class="p-button-outlined p-button-secondary"
+        (click)="closeAddDialog()" [disabled]="saving()"></button>
+      <button pButton type="button" label="Add Supplier" icon="pi pi-check" class="p-button-primary"
+        (click)="createSupplier()" [loading]="saving()"></button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<!-- Confirm Delete Dialog -->
+<p-confirmDialog />
